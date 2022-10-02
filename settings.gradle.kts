@@ -16,9 +16,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kotlin-project-template"
+rootProject.name = "pomodoro"
 
 includeBuild("build-logic/dependencies")
 includeBuild("build-logic/configuration")
-includeBuild("build-logic/service-deploy")
-//includeBuild("buildUtils/library-deploy")
+
+include("backend:domain", "backend:endpoints", "backend:use-cases")

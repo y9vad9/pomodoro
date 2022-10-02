@@ -34,6 +34,11 @@ object Deps {
     private const val kdsVer = "1.1.0"
     private const val scriptKtVer = "0.0.5"
 
+    object Modules {
+        object Backend {
+            const val Domain = ":backend:domain"
+        }
+    }
     object Libs {
 
         object KotlinGang {
