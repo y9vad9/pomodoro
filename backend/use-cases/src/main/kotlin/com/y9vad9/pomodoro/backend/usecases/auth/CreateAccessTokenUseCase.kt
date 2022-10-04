@@ -1,7 +1,5 @@
 package com.y9vad9.pomodoro.backend.usecases.auth
 
-import com.y9vad9.pomodoro.backend.domain.entity.AccessToken
-import com.y9vad9.pomodoro.backend.domain.entity.UserId
 import com.y9vad9.pomodoro.backend.provider.AccessTokenProvider
 import com.y9vad9.pomodoro.backend.provider.CurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.AuthorizationsRepository
@@ -16,7 +14,7 @@ class CreateAccessTokenUseCase(
     /**
      * Creates token for [userId]
      */
-    suspend operator fun invoke(userId: UserId): Result {
+    suspend operator fun invoke(userId: UsersRepository.UserId): Result {
         return when {
             users.getUser(userId) == null -> Result.UserNotFound
             else -> {
@@ -33,7 +31,7 @@ class CreateAccessTokenUseCase(
 
     sealed interface Result {
         @JvmInline
-        value class Success(val accessToken: AccessToken) : Result
+        value class Success(val accessToken: AuthorizationsRepository.AccessToken) : Result
 
         object UserNotFound : Result
     }

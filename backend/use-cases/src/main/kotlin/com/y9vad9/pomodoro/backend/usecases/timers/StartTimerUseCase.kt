@@ -1,14 +1,14 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
-import com.y9vad9.pomodoro.backend.domain.entity.UserId
 import com.y9vad9.pomodoro.backend.provider.CurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
+import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 
 class StartTimerUseCase(
     private val timers: TimersRepository,
     private val time: CurrentTimeProvider
 ) {
-    suspend operator fun invoke(userId: UserId, timerId: TimersRepository.TimerId): Result {
+    suspend operator fun invoke(userId: UsersRepository.UserId, timerId: TimersRepository.TimerId): Result {
         val timer = timers.getTimer(timerId) ?: return Result.NoAccess
         val settings = timers.getTimerSettings(timerId)!!
         return if (

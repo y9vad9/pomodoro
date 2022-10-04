@@ -1,9 +1,9 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
-import com.y9vad9.pomodoro.backend.domain.entity.UserId
 import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
+import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.test.BeforeTest
@@ -17,7 +17,7 @@ class StopTimerUseCaseTest {
         runBlocking {
             repository.createTimer(
                 TimersRepository.TimerName("test1"),
-                TimersRepository.Settings.Default, UserId(0)
+                TimersRepository.Settings.Default, UsersRepository.UserId(0)
             )
         }
     }
@@ -26,7 +26,7 @@ class StopTimerUseCaseTest {
     fun testSuccess() = runBlocking {
         val timerId = TimersRepository.TimerId(0)
         val result = useCase(
-            UserId(0),
+            UsersRepository.UserId(0),
             timerId
         )
         assert(result is StopTimerUseCase.Result.Success)
@@ -36,14 +36,14 @@ class StopTimerUseCaseTest {
 
     @Test
     fun testNoAccess() = runBlocking {
-        val result = useCase(UserId(2), TimersRepository.TimerId(0))
+        val result = useCase(UsersRepository.UserId(2), TimersRepository.TimerId(0))
         assert(result is StopTimerUseCase.Result.NoAccess)
     }
 
     @Test
     fun testNotFound() = runBlocking {
         val result = useCase(
-            UserId(2), TimersRepository.TimerId(5)
+            UsersRepository.UserId(2), TimersRepository.TimerId(5)
         )
         assert(result is StopTimerUseCase.Result.NoAccess)
     }

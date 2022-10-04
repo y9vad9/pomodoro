@@ -1,13 +1,13 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
-import com.y9vad9.pomodoro.backend.domain.entity.UserId
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
+import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 
 class CreateTimerUseCase(
     private val timers: TimersRepository
 ) {
     suspend operator fun invoke(
-        userId: UserId,
+        userId: UsersRepository.UserId,
         settings: TimersRepository.Settings,
         name: TimersRepository.TimerName
     ): Result {

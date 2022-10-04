@@ -1,7 +1,7 @@
 package com.y9vad9.pomodoro.backend.provider
 
-import com.y9vad9.pomodoro.backend.domain.entity.AccessToken
+import com.y9vad9.pomodoro.backend.repositories.AuthorizationsRepository
 
 interface AccessTokenProvider {
-    fun provide(): AccessToken
+    fun provide(): AuthorizationsRepository.AccessToken
 }
