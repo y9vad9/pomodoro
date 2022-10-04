@@ -18,7 +18,7 @@ interface AuthorizationsRepository {
     /**
      * Gets authorization by [accessToken]
      */
-    suspend fun get(accessToken: AccessToken): Authorization
+    suspend fun get(accessToken: AccessToken): Authorization?
 
     /**
      * Gets authorizations by [userId]
@@ -27,6 +27,7 @@ interface AuthorizationsRepository {
 
     class Authorization(
         val userId: UserId,
-        val accessToken: AccessToken
+        val accessToken: AccessToken,
+        val expiresAt: DateTime
     )
 }

@@ -40,6 +40,9 @@ object Deps {
         }
     }
     object Libs {
+        object JUnit {
+            const val Kotlin = "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+        }
 
         object KotlinGang {
             object KDS {
