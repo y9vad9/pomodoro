@@ -4,6 +4,10 @@ pluginManagement {
         mavenCentral()
         google()
     }
+
+    plugins {
+        kotlin("plugin.serialization") version "1.7.20"
+    }
 }
 
 dependencyResolutionManagement {
@@ -21,4 +25,10 @@ rootProject.name = "pomodoro"
 includeBuild("build-logic/dependencies")
 includeBuild("build-logic/configuration")
 
-include("backend:domain", "backend:endpoints", "backend:use-cases")
+include(
+    "backend:domain",
+    "backend:endpoints",
+    "backend:use-cases",
+    ":backend:application",
+    ":backend:adapters:repositories-integration"
+)

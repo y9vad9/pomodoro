@@ -15,7 +15,6 @@ class StartTimerUseCase(
             (timer.ownerId == userId)
             || (settings.isEveryoneCanPause && timers.isMemberOf(userId, timerId))
         ) {
-            timers.setTimerSettings(timerId, TimersRepository.NewSettings(isPaused = false))
             timers.createEvent(
                 timerId,
                 TimersRepository.TimerEvent.Started(

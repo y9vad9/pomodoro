@@ -6,7 +6,8 @@ interface TimersRepository {
     suspend fun createTimer(
         name: TimerName,
         settings: Settings,
-        ownerId: UsersRepository.UserId
+        ownerId: UsersRepository.UserId,
+        creationTime: DateTime
     ): TimerId
 
     suspend fun getTimer(timerId: TimerId): Timer?
@@ -15,16 +16,16 @@ interface TimersRepository {
     suspend fun getTimerSettings(timerId: TimerId): Settings?
     suspend fun setTimerSettings(timerId: TimerId, settings: NewSettings)
     suspend fun addMember(userId: UsersRepository.UserId, timerId: TimerId)
-    suspend fun getMembers(timerId: TimerId): List<UsersRepository.UserId>
+    suspend fun getMembers(timerId: TimerId, boundaries: IntProgression): Sequence<UsersRepository.UserId>
     suspend fun isMemberOf(userId: UsersRepository.UserId, timerId: TimerId): Boolean
 
     /**
      * Gets all timers where [userId] is participating.
      */
-    suspend fun getTimers(userId: UsersRepository.UserId): List<Timer>
+    suspend fun getTimers(userId: UsersRepository.UserId, boundaries: IntProgression): Sequence<Timer>
 
     suspend fun createEvent(timerId: TimerId, timerEvent: TimerEvent)
-    suspend fun getEvents(timerId: TimerId): List<TimerEvent>
+    suspend fun getEvents(timerId: TimerId, boundaries: IntProgression): Sequence<TimerEvent>
 
     class Settings(
         val workTime: Long,
@@ -54,7 +55,6 @@ interface TimersRepository {
         val bigRestTime: Long? = null,
         val bigRestEnabled: Boolean? = null,
         val bigRestPer: Int? = null,
-        val isPaused: Boolean? = null,
         val isEveryoneCanPause: Boolean? = null
     )
 

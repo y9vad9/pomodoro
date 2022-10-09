@@ -6,8 +6,10 @@ import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 class GetTimersUseCase(
     private val timers: TimersRepository
 ) {
-    suspend operator fun invoke(userId: UsersRepository.UserId): Result {
-        return Result.Success(timers.getTimers(userId))
+    suspend operator fun invoke(
+        userId: UsersRepository.UserId, boundaries: IntProgression
+    ): Result {
+        return Result.Success(timers.getTimers(userId, boundaries).toList())
     }
 
     sealed interface Result {
