@@ -1,7 +1,7 @@
 package com.y9vad9.pomodoro.backend.repositories.integration
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
-import com.y9vad9.pomodoro.backend.domain.entity.UserName
+import com.y9vad9.pomodoro.backend.domain.UserName
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository as UsersRepositoryContract
 

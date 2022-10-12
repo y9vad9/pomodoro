@@ -1,6 +1,7 @@
 package com.y9vad9.pomodoro.backend.repositories
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
+import com.y9vad9.pomodoro.backend.domain.TimerName
 
 interface TimersRepository {
     suspend fun createTimer(
@@ -27,7 +28,7 @@ interface TimersRepository {
     suspend fun createEvent(timerId: TimerId, timerEvent: TimerEvent)
     suspend fun getEvents(timerId: TimerId, boundaries: IntProgression): Sequence<TimerEvent>
 
-    class Settings(
+    data class Settings(
         val workTime: Long,
         val restTime: Long,
         val bigRestTime: Long,
@@ -36,8 +37,8 @@ interface TimersRepository {
         val isPaused: Boolean,
         val isEveryoneCanPause: Boolean
     ) {
-       companion object {
-           val Default = Settings(
+        companion object {
+            val Default = Settings(
                workTime = 1500000L,
                restTime = 300000,
                bigRestTime = 600000,
@@ -58,15 +59,12 @@ interface TimersRepository {
         val isEveryoneCanPause: Boolean? = null
     )
 
-    class Timer(
+    data class Timer(
         val timerId: TimerId,
         val name: TimerName,
         val ownerId: UsersRepository.UserId,
         val settings: Settings
     )
-
-    @JvmInline
-    value class TimerName(val string: String)
 
     @JvmInline
     value class TimerId(val int: Int)
