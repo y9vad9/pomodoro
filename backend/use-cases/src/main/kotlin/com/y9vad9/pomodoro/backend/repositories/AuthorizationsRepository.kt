@@ -11,7 +11,7 @@ interface AuthorizationsRepository {
     /**
      * Removes authorization for [userId] where [accessToken].
      */
-    suspend fun remove(userId: UsersRepository.UserId, accessToken: AccessToken): Boolean
+    suspend fun remove(accessToken: AccessToken): Boolean
 
     /**
      * Gets authorization by [accessToken]

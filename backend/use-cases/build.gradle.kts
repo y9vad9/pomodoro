@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation(project(Deps.Modules.Backend.Domain))
     implementation(Deps.Libs.Kotlinx.Coroutines)
+    implementation(project(Deps.Modules.Backend.Adapters.GoogleAuthIntegration))
     testImplementation(Deps.Libs.JUnit.Kotlin)
 }
 

@@ -38,6 +38,10 @@ object Deps {
         object Backend {
             const val Domain = ":backend:domain"
             const val UseCases = ":backend:use-cases"
+
+            object Adapters {
+                const val GoogleAuthIntegration = ":backend:adapters:google-auth-integration"
+            }
         }
     }
     object Libs {
@@ -109,14 +113,18 @@ object Deps {
             object Client {
                 const val Core = "io.ktor:ktor-client-core:$ktorVersion"
                 const val Cio = "io.ktor:ktor-client-cio:$ktorVersion"
-                const val Serialization = "io.ktor:ktor-client-serialization:$ktorVersion"
+                const val ContentNegotiation = "io.ktor:ktor-client-content-negotiation:$ktorVersion"
             }
+
             object Server {
                 const val Core = "io.ktor:ktor-server-core:$ktorVersion"
                 const val Cio = "io.ktor:ktor-server-cio:$ktorVersion"
                 const val ContentNegotiation = "io.ktor:ktor-server-content-negotiation:$ktorVersion"
                 const val Openapi = "com.github.papsign:Ktor-OpenAPI-Generator:$ktorOpenapiVersion"
+                const val RequestValidation = "io.ktor:ktor-server-request-validation:$ktorVersion"
             }
+
+            const val Json = "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
         }
         object Exposed {
             const val Core = "org.jetbrains.exposed:exposed-core:$exposedVersion"

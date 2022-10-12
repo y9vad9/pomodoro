@@ -27,8 +27,8 @@ includeBuild("build-logic/configuration")
 
 include(
     "backend:domain",
-    "backend:endpoints",
     "backend:use-cases",
     ":backend:application",
-    ":backend:adapters:repositories-integration"
+    ":backend:adapters:repositories-integration",
+    "backend:adapters:google-auth-integration"
 )
