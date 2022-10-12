@@ -1,5 +1,7 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
+import com.y9vad9.pomodoro.backend.domain.TimerName
+import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
@@ -15,12 +17,14 @@ class RemoveTimerUseCaseTest {
     fun before() {
         runBlocking {
             repository.createTimer(
-                TimersRepository.TimerName("test1"),
-                TimersRepository.Settings.Default, UsersRepository.UserId(0)
+                TimerName("test1"),
+                TimersRepository.Settings.Default, UsersRepository.UserId(0),
+                MockedCurrentTimeProvider.provide()
             )
             repository.createTimer(
-                TimersRepository.TimerName("test2"),
-                TimersRepository.Settings.Default, UsersRepository.UserId(2)
+                TimerName("test2"),
+                TimersRepository.Settings.Default, UsersRepository.UserId(2),
+                MockedCurrentTimeProvider.provide()
             )
         }
     }
@@ -34,7 +38,7 @@ class RemoveTimerUseCaseTest {
     @Test
     fun testNoAccess() = runBlocking {
         val result = useCase(UsersRepository.UserId(2), TimersRepository.TimerId(0))
-        assert(result is RemoveTimerUseCase.Result.NoAccess)
+        assert(result is RemoveTimerUseCase.Result.NotFound)
     }
 
     @Test

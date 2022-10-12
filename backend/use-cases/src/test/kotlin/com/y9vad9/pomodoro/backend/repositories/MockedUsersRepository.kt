@@ -1,13 +1,13 @@
 package com.y9vad9.pomodoro.backend.repositories
 
-import com.y9vad9.pomodoro.backend.domain.User
-import com.y9vad9.pomodoro.backend.domain.entity.UserName
+import com.y9vad9.pomodoro.backend.domain.DateTime
+import com.y9vad9.pomodoro.backend.domain.UserName
 
 class MockedUsersRepository : UsersRepository {
-    private val users: MutableList<User> = mutableListOf()
+    private val users: MutableList<UsersRepository.User> = mutableListOf()
 
-    override suspend fun createUser(userName: UserName): UsersRepository.UserId {
-        users += User(userName)
+    override suspend fun createUser(userName: UserName, creationTime: DateTime): UsersRepository.UserId {
+        users += UsersRepository.User(UsersRepository.UserId(users.size), userName)
         return UsersRepository.UserId(users.lastIndex)
     }
 

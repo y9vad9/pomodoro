@@ -1,5 +1,7 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
+import com.y9vad9.pomodoro.backend.domain.TimerName
+import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
@@ -9,7 +11,7 @@ import kotlin.test.assertNotNull
 
 class CreateTimerUseCaseTest {
     private val repository = MockedTimersRepository()
-    private val useCase = CreateTimerUseCase(repository)
+    private val useCase = CreateTimerUseCase(repository, MockedCurrentTimeProvider)
 
     @Test
     fun testSuccess() {
@@ -17,7 +19,7 @@ class CreateTimerUseCaseTest {
             val result = useCase(
                 UsersRepository.UserId(0),
                 TimersRepository.Settings.Default,
-                TimersRepository.TimerName("Test")
+                TimerName("Test")
             ) as CreateTimerUseCase.Result.Success
             assertNotNull(repository.getTimer(result.timerId))
         }

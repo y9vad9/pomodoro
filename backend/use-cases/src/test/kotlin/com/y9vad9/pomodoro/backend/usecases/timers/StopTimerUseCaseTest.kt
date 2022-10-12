@@ -1,5 +1,6 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
+import com.y9vad9.pomodoro.backend.domain.TimerName
 import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
@@ -16,8 +17,9 @@ class StopTimerUseCaseTest {
     fun before() {
         runBlocking {
             repository.createTimer(
-                TimersRepository.TimerName("test1"),
-                TimersRepository.Settings.Default, UsersRepository.UserId(0)
+                TimerName("test1"),
+                TimersRepository.Settings.Default, UsersRepository.UserId(0),
+                MockedCurrentTimeProvider.provide()
             )
         }
     }
@@ -31,7 +33,7 @@ class StopTimerUseCaseTest {
         )
         assert(result is StopTimerUseCase.Result.Success)
         assert(repository.getTimerSettings(timerId)!!.isPaused)
-        assert(repository.getEvents(timerId).last() is TimersRepository.TimerEvent.Paused)
+        assert(repository.getEvents(timerId, 0..Int.MAX_VALUE).last() is TimersRepository.TimerEvent.Paused)
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
+import com.y9vad9.pomodoro.backend.domain.TimerName
+import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
@@ -15,19 +17,21 @@ class GetTimersUseCaseTest {
     fun before() {
         runBlocking {
             repository.createTimer(
-                TimersRepository.TimerName("test1"),
-                TimersRepository.Settings.Default, UsersRepository.UserId(0)
+                TimerName("test1"),
+                TimersRepository.Settings.Default, UsersRepository.UserId(0),
+                MockedCurrentTimeProvider.provide()
             )
             repository.createTimer(
-                TimersRepository.TimerName("test2"),
-                TimersRepository.Settings.Default, UsersRepository.UserId(1)
+                TimerName("test2"),
+                TimersRepository.Settings.Default, UsersRepository.UserId(1),
+                MockedCurrentTimeProvider.provide()
             )
         }
     }
 
     @Test
     fun testSuccess() = runBlocking {
-        val result = useCase(UsersRepository.UserId(0))
+        val result = useCase(UsersRepository.UserId(0), 0..Int.MAX_VALUE)
         assert(result is GetTimersUseCase.Result.Success)
         result as GetTimersUseCase.Result.Success
         assert(result.list.size == 1)
