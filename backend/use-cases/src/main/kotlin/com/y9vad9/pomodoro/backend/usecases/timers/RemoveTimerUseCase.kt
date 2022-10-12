@@ -9,8 +9,7 @@ class RemoveTimerUseCase(
     suspend operator fun invoke(userId: UsersRepository.UserId, timerId: TimersRepository.TimerId): Result {
         val timer = timers.getTimer(timerId)
         return when {
-            timer == null -> Result.NotFound
-            timer.ownerId != userId -> Result.NoAccess
+            timer == null || timer.ownerId != userId -> Result.NotFound
             else -> {
                 timers.removeTimer(timerId)
                 Result.Success
@@ -22,6 +21,5 @@ class RemoveTimerUseCase(
     sealed interface Result {
         object Success : Result
         object NotFound : Result
-        object NoAccess : Result
     }
 }
