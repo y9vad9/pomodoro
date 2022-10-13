@@ -1,6 +1,7 @@
 package com.y9vad9.pomodoro.backend.repositories.integration.test
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
+import com.y9vad9.pomodoro.backend.domain.TimerName
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 import com.y9vad9.pomodoro.backend.repositories.integration.TimersDatabaseDataSource
 import com.y9vad9.pomodoro.backend.repositories.integration.TimersRepository
@@ -30,7 +31,7 @@ class TimersRepositoryTest {
     @Test
     fun createTimerTest(): Unit = runBlocking {
         val id = timers.createTimer(
-            TimersRepositoryContract.TimerName("Test"),
+            TimerName("Test"),
             TimersRepositoryContract.Settings.Default,
             UsersRepository.UserId(1),
             DateTime(System.currentTimeMillis())
@@ -42,7 +43,7 @@ class TimersRepositoryTest {
     @Test
     fun removeTimerTest(): Unit = runBlocking {
         val id = timers.createTimer(
-            TimersRepositoryContract.TimerName("Test"),
+            TimerName("Test"),
             TimersRepositoryContract.Settings.Default,
             UsersRepository.UserId(1),
             DateTime(System.currentTimeMillis())
@@ -58,14 +59,14 @@ class TimersRepositoryTest {
     @Test
     fun getUserTimers(): Unit = runBlocking {
         timers.createTimer(
-            TimersRepositoryContract.TimerName("Test"),
+            TimerName("Test"),
             TimersRepositoryContract.Settings.Default,
             UsersRepository.UserId(1),
             DateTime(System.currentTimeMillis())
         )
 
         timers.createTimer(
-            TimersRepositoryContract.TimerName("Test 2"),
+            TimerName("Test 2"),
             TimersRepositoryContract.Settings.Default,
             UsersRepository.UserId(1),
             DateTime(System.currentTimeMillis())
