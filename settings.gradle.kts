@@ -31,5 +31,6 @@ include(
     "backend:application",
     "backend:adapters:repositories-integration",
     "backend:adapters:google-auth-integration",
-    "backend:adapters:time-integration"
+    "backend:adapters:time-integration",
+    "backend:adapters:tokens-integration"
 )
