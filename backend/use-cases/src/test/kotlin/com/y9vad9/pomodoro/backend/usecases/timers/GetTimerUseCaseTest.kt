@@ -1,7 +1,7 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
 import com.y9vad9.pomodoro.backend.domain.TimerName
-import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
+import com.y9vad9.pomodoro.backend.providers.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository

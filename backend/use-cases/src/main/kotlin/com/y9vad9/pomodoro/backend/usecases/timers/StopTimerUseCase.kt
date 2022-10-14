@@ -1,6 +1,6 @@
 package com.y9vad9.pomodoro.backend.usecases.timers
 
-import com.y9vad9.pomodoro.backend.provider.CurrentTimeProvider
+import com.y9vad9.pomodoro.backend.providers.CurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 

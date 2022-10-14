@@ -1,6 +1,6 @@
 package com.y9vad9.pomodoro.backend.usecases.auth
 
-import com.y9vad9.pomodoro.backend.provider.CurrentTimeProvider
+import com.y9vad9.pomodoro.backend.providers.CurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.AuthorizationsRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 

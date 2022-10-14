@@ -2,9 +2,9 @@ package com.y9vad9.pomodoro.backend.usecases.auth
 
 import com.y9vad9.pomodoro.backend.domain.UserName
 import com.y9vad9.pomodoro.backend.google.auth.GoogleClient
-import com.y9vad9.pomodoro.backend.provider.AccessTokenProvider
-import com.y9vad9.pomodoro.backend.provider.CurrentTimeProvider
-import com.y9vad9.pomodoro.backend.provider.RefreshTokenProvider
+import com.y9vad9.pomodoro.backend.providers.AccessTokenProvider
+import com.y9vad9.pomodoro.backend.providers.CurrentTimeProvider
+import com.y9vad9.pomodoro.backend.providers.RefreshTokenProvider
 import com.y9vad9.pomodoro.backend.repositories.AuthorizationsRepository
 import com.y9vad9.pomodoro.backend.repositories.LinkedSocialsRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository

@@ -1,8 +1,8 @@
 package com.y9vad9.pomodoro.backend.usecases.timers.invites
 
 import com.y9vad9.pomodoro.backend.domain.TimerName
-import com.y9vad9.pomodoro.backend.provider.MockedCodeProvider
-import com.y9vad9.pomodoro.backend.provider.MockedCurrentTimeProvider
+import com.y9vad9.pomodoro.backend.providers.MockedCodeProvider
+import com.y9vad9.pomodoro.backend.providers.MockedCurrentTimeProvider
 import com.y9vad9.pomodoro.backend.repositories.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test

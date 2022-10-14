@@ -1,4 +1,4 @@
-package com.y9vad9.pomodoro.backend.provider
+package com.y9vad9.pomodoro.backend.providers
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
 
