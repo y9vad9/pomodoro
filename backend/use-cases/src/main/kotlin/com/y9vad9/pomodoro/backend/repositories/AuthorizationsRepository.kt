@@ -6,7 +6,12 @@ interface AuthorizationsRepository {
     /**
      * Creates authorization for [userId] with [accessToken] until [expiresAt] time.
      */
-    suspend fun create(userId: UsersRepository.UserId, accessToken: AccessToken, expiresAt: DateTime)
+    suspend fun create(
+        userId: UsersRepository.UserId,
+        accessToken: AccessToken,
+        refreshToken: RefreshToken,
+        expiresAt: DateTime
+    )
 
     /**
      * Removes authorization for [userId] where [accessToken].
@@ -16,19 +21,32 @@ interface AuthorizationsRepository {
     /**
      * Gets authorization by [accessToken]
      */
-    suspend fun get(accessToken: AccessToken): Authorization?
+    suspend fun get(accessToken: AccessToken, currentTime: DateTime): Authorization?
 
     /**
      * Gets authorizations by [userId]
      */
     suspend fun getList(userId: UsersRepository.UserId): List<Authorization>
 
+    /**
+     * Renews [AccessToken] by [refreshToken] in [Authorization].
+     */
+    suspend fun renew(
+        refreshToken: RefreshToken,
+        accessToken: AccessToken,
+        expiresAt: DateTime
+    ): Authorization?
+
     @JvmInline
     value class AccessToken(val string: String)
 
-    class Authorization(
+    @JvmInline
+    value class RefreshToken(val string: String)
+
+    data class Authorization(
         val userId: UsersRepository.UserId,
         val accessToken: AccessToken,
+        val refreshToken: RefreshToken,
         val expiresAt: DateTime
     )
 }

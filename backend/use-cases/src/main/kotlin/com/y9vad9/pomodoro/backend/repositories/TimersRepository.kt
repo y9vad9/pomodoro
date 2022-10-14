@@ -3,7 +3,8 @@ package com.y9vad9.pomodoro.backend.repositories
 import com.y9vad9.pomodoro.backend.domain.DateTime
 import com.y9vad9.pomodoro.backend.domain.TimerName
 
-interface TimersRepository {
+interface
+TimersRepository {
     suspend fun createTimer(
         name: TimerName,
         settings: Settings,

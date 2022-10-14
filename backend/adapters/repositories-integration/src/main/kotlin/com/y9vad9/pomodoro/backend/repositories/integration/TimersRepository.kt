@@ -1,13 +1,15 @@
 package com.y9vad9.pomodoro.backend.repositories.integration
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
+import com.y9vad9.pomodoro.backend.domain.TimerName
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
+import com.y9vad9.pomodoro.backend.repositories.integration.datasource.TimersDatabaseDataSource
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository as TimersRepositoryContract
 
 class TimersRepository(private val datasource: TimersDatabaseDataSource) : TimersRepositoryContract {
     override suspend fun createTimer(
-        name: TimersRepository.TimerName,
+        name: TimerName,
         settings: TimersRepository.Settings,
         ownerId: UsersRepository.UserId,
         creationTime: DateTime
@@ -82,7 +84,7 @@ class TimersRepository(private val datasource: TimersDatabaseDataSource) : Timer
     private fun TimersDatabaseDataSource.Timer.toExternalTimer(): TimersRepositoryContract.Timer {
         return TimersRepository.Timer(
             TimersRepository.TimerId(id),
-            TimersRepository.TimerName(timerName),
+            TimerName(timerName),
             UsersRepository.UserId(ownerId),
             settings.toExternalSettings()
         )

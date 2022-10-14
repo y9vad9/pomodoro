@@ -3,9 +3,9 @@ package com.y9vad9.pomodoro.backend.repositories.integration.test
 import com.y9vad9.pomodoro.backend.domain.DateTime
 import com.y9vad9.pomodoro.backend.domain.TimerName
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
-import com.y9vad9.pomodoro.backend.repositories.integration.TimersDatabaseDataSource
 import com.y9vad9.pomodoro.backend.repositories.integration.TimersRepository
-import com.y9vad9.pomodoro.backend.repositories.integration.UsersDatabaseDataSource
+import com.y9vad9.pomodoro.backend.repositories.integration.datasource.TimersDatabaseDataSource
+import com.y9vad9.pomodoro.backend.repositories.integration.datasource.UsersDatabaseDataSource
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
@@ -73,6 +73,6 @@ class TimersRepositoryTest {
         )
 
 
-        assert(timers.getTimers(UsersRepository.UserId(1), 0..2).none())
+        assert(!timers.getTimers(UsersRepository.UserId(1), 0..2).none())
     }
 }

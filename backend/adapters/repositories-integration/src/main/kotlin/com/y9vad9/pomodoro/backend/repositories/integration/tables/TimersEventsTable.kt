@@ -1,6 +1,6 @@
 package com.y9vad9.pomodoro.backend.repositories.integration.tables
 
-import com.y9vad9.pomodoro.backend.repositories.integration.TimersDatabaseDataSource
+import com.y9vad9.pomodoro.backend.repositories.integration.datasource.TimersDatabaseDataSource
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select

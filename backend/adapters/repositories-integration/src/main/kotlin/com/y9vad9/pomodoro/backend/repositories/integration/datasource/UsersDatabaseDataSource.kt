@@ -1,4 +1,4 @@
-package com.y9vad9.pomodoro.backend.repositories.integration
+package com.y9vad9.pomodoro.backend.repositories.integration.datasource
 
 import com.y9vad9.pomodoro.backend.repositories.integration.tables.UsersTable
 import org.jetbrains.exposed.sql.*

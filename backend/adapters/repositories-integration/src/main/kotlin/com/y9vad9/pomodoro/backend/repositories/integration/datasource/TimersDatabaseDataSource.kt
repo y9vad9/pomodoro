@@ -1,4 +1,4 @@
-package com.y9vad9.pomodoro.backend.repositories.integration
+package com.y9vad9.pomodoro.backend.repositories.integration.datasource
 
 import com.y9vad9.pomodoro.backend.repositories.integration.internal.limit
 import com.y9vad9.pomodoro.backend.repositories.integration.tables.TimerParticipantsTable
@@ -25,7 +25,7 @@ class TimersDatabaseDataSource(
     ): Sequence<Timer> = newSuspendedTransaction(db = database) {
         val userTimers = TimerParticipantsTable
             .select { TimerParticipantsTable.PARTICIPANT_ID eq id }
-            .asSequence().map { it[TimerParticipantsTable.PARTICIPANT_ID] }.toList()
+            .map { it[TimerParticipantsTable.PARTICIPANT_ID] }
 
         val timers = TimersTable.select {
             TimersTable.TIMER_ID inList userTimers
@@ -35,7 +35,7 @@ class TimersDatabaseDataSource(
             timers.map {
                 TimersEventsTable.selectLastEvent(it[TimersTable.TIMER_ID])
             }.map {
-                it.last()[TimersEventsTable.EVENT_TYPE] != Timer.Event.Type.START
+                it.lastOrNull()?.get(TimersEventsTable.EVENT_TYPE) != Timer.Event.Type.START
             }.toList()
         }
 
