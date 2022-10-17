@@ -14,7 +14,7 @@ dependencies {
     implementation(Deps.Libs.Kotlinx.Coroutines)
     implementation(project(Deps.Modules.Backend.UseCases))
     implementation(project(Deps.Modules.Backend.Domain))
-    implementation("io.ktor:ktor-server-core-jvm:2.1.2")
-    implementation("io.ktor:ktor-server-host-common-jvm:2.1.2")
-    implementation("io.ktor:ktor-server-status-pages-jvm:2.1.2")
+    implementation(Deps.Libs.Ktor.Server.Core)
+    implementation(Deps.Libs.Ktor.Server.HostCommonJvm)
+    implementation(Deps.Libs.Ktor.Server.StatusPages)
 }

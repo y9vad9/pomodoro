@@ -118,6 +118,8 @@ object Deps {
 
             object Server {
                 const val Core = "io.ktor:ktor-server-core:$ktorVersion"
+                const val HostCommonJvm = "io.ktor:ktor-server-host-common-jvm:$ktorVersion"
+                const val StatusPages = "io.ktor:ktor-server-status-pages-jvm:$ktorVersion"
                 const val Cio = "io.ktor:ktor-server-cio:$ktorVersion"
                 const val ContentNegotiation = "io.ktor:ktor-server-content-negotiation:$ktorVersion"
                 const val Openapi = "com.github.papsign:Ktor-OpenAPI-Generator:$ktorOpenapiVersion"
