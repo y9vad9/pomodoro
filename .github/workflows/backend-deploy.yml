@@ -21,6 +21,7 @@ jobs:
             host: ${{ secrets.host }}
             user: ${{ secrets.user }}
             password: ${{ secrets.password }}
+            archiveName: ${{ secrets.archiveName }}
             prod_destination: ${{ secrets.prod_destination }}
             prod_serviceName: ${{ secrets.prod_serviceName }}
           run: ./gradlew :backend:application:productionDeploy
