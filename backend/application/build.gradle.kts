@@ -22,6 +22,7 @@ dependencies {
     implementation(project(Deps.Modules.Backend.Adapters.CodesIntegration))
     implementation(Deps.Libs.Exposed.Core)
     implementation(Deps.Libs.Exposed.Jdbc)
+    implementation(Deps.Libs.Postgres.Jdbc)
     implementation(Deps.Libs.Ktor.Server.Core)
     implementation(Deps.Libs.Ktor.Server.HostCommonJvm)
     implementation(Deps.Libs.Ktor.Server.StatusPages)
