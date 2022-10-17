@@ -21,7 +21,7 @@ class RenewTokenRequest(
 }
 
 fun Route.renewToken(refreshToken: RefreshTokenUseCase) {
-    post("google") {
+    post("renew") {
         val data: RenewTokenRequest = call.receive()
         val response = when (val result = refreshToken(
             AuthorizationsRepository.RefreshToken(data.refreshToken)
