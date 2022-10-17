@@ -4,12 +4,9 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
-import org.gradle.kotlin.dsl.the
-import org.gradle.util.GUtil.loadProperties
 import org.hidetake.groovy.ssh.connection.AllowAnyHosts
 import org.hidetake.groovy.ssh.core.Remote
 import java.io.File
-import java.util.*
 
 class DeployPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -67,9 +64,4 @@ class DeployPlugin : Plugin<Project> {
             }
         }
     }
-
-    private fun Project.properties(): Properties? =
-        rootProject.file("deploy.properties")
-            .takeIf(File::exists)
-            ?.let(::loadProperties)
 }

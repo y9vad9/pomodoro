@@ -49,3 +49,9 @@ deploy {
 application {
     mainClass.set("com.y9vad9.pomodoro.backend.application.MainKt")
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
