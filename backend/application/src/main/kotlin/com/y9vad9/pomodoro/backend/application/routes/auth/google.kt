@@ -31,5 +31,6 @@ fun Route.authViaGoogle(authViaGoogle: AuthViaGoogleUseCase) {
             is AuthViaGoogleUseCase.Result.Success ->
                 AuthViaGoogleRequest.Result.Success(result.accessToken.string)
         }
+        call.respond(response)
     }
 }
