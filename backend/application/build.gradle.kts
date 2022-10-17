@@ -40,8 +40,8 @@ deploy {
         }
 
         target("production") {
-            destination = System.getenv("prod.destination")
-            serviceName = System.getenv("prod.serviceName")
+            destination = System.getenv("prod_destination")
+            serviceName = System.getenv("prod_serviceName")
         }
     }
 }
