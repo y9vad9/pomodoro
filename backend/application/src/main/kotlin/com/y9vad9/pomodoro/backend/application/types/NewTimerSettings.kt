@@ -19,5 +19,6 @@ fun NewSettings.toInternal(): TimersRepository.NewSettings =
         restTime,
         bigRestTime,
         bigRestEnabled,
-        bigRestPer
+        bigRestPer,
+        isEveryoneCanPause
     )
