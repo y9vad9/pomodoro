@@ -1,0 +1,27 @@
+name: deploy
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-java@v3
+          with:
+            distribution: 'corretto'
+            java-version: '11'
+            cache: 'gradle'
+        - name: Deploy
+          env:
+            host: ${{ secrets.host }}
+            user: ${{ secrets.user }}
+            password: ${{ secrets.password }}
+            prod_destination: ${{ secrets.prod_destination }}
+            prod_serviceName: ${{ secrets.prod_serviceName }}
+          run: ./gradlew :backend:application:productionDeploy
+        
