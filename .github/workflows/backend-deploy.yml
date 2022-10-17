@@ -10,13 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-java@v3
-          with:
-            distribution: 'corretto'
-            java-version: '11'
-            cache: 'gradle'
-            
         - name: Deploy
           env:
             host: ${{ secrets.host }}
@@ -24,5 +17,11 @@ jobs:
             password: ${{ secrets.password }}
             prod_destination: ${{ secrets.prod_destination }}
             prod_serviceName: ${{ secrets.prod_serviceName }}
+        - uses: actions/checkout@v3
+        - uses: actions/setup-java@v3
+          with:
+            distribution: 'corretto'
+            java-version: '11'
+            cache: 'gradle'
         - run: ./gradlew :backend:application:productionDeploy
         
