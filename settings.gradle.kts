@@ -26,11 +26,11 @@ includeBuild("build-logic/dependencies")
 includeBuild("build-logic/configuration")
 
 include(
-    "backend:domain",
-    "backend:use-cases",
-    "backend:application",
-    "backend:adapters:repositories-integration",
-    "backend:adapters:google-auth-integration",
-    "backend:adapters:time-integration",
-    "backend:adapters:tokens-integration"
+    ":backend:domain",
+    ":backend:use-cases",
+    ":backend:application",
+    ":backend:adapters:repositories-integration",
+    ":backend:adapters:google-auth-integration",
+    ":backend:adapters:time-integration",
+    ":backend:adapters:tokens-integration"
 )
