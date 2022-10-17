@@ -11,4 +11,5 @@ open class DeployExtension {
  * Default configuration that used as fallback when some value wasn't specified.
  * Use it to avoid code-repeating.
  */
-fun DeployExtension.default(block: TargetConfiguration.() -> Unit) = target("default", block)
+fun DeployExtension.default(block: TargetConfiguration.() -> Unit) =
+    target("default", block)
