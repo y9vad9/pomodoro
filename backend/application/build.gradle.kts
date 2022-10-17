@@ -1,6 +1,7 @@
 plugins {
     id(Deps.Plugins.Configuration.Kotlin.Jvm)
     id(Deps.Plugins.Serialization.Id)
+    id(Deps.Plugins.Deploy.Id)
 }
 
 dependencies {
@@ -24,4 +25,27 @@ dependencies {
     implementation(Deps.Libs.Ktor.Server.Core)
     implementation(Deps.Libs.Ktor.Server.HostCommonJvm)
     implementation(Deps.Libs.Ktor.Server.StatusPages)
+}
+
+deploy {
+    if (System.getenv("host") != null) {
+        default {
+            host = System.getenv("host")
+            user = System.getenv("user")
+            password = System.getenv("password")
+            knownHostsFile = System.getenv("knownHosts")
+            archiveName = System.getenv("archiveName")
+
+            mainClass = "com.y9vad9.pomodoro.backend.application.MainKt"
+        }
+
+        target("production") {
+            destination = System.getenv("prod.destination")
+            serviceName = System.getenv("prod.serviceName")
+        }
+    }
+}
+
+application {
+    mainClass.set("com.y9vad9.pomodoro.backend.application.MainKt")
 }

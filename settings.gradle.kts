@@ -24,6 +24,7 @@ rootProject.name = "pomodoro"
 
 includeBuild("build-logic/dependencies")
 includeBuild("build-logic/configuration")
+includeBuild("build-logic/service-deploy")
 
 include(
     ":backend:domain",
