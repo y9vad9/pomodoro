@@ -28,7 +28,7 @@ fun main(): Unit = runBlocking {
     val database = Database.connect(
         databaseUrl,
         user = databaseUser,
-        password = databasePassword,
+        password = databasePassword
     )
 
     val googleClient = GoogleClient(
