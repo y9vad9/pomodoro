@@ -25,6 +25,7 @@ dependencies {
     implementation(Deps.Libs.Ktor.Server.Core)
     implementation(Deps.Libs.Ktor.Server.HostCommonJvm)
     implementation(Deps.Libs.Ktor.Server.StatusPages)
+    implementation(Deps.Libs.Ktor.Server.CORS)
 }
 
 deploy {

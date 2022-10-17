@@ -128,6 +128,7 @@ object Deps {
                 const val ContentNegotiation = "io.ktor:ktor-server-content-negotiation:$ktorVersion"
                 const val Openapi = "com.github.papsign:Ktor-OpenAPI-Generator:$ktorOpenapiVersion"
                 const val RequestValidation = "io.ktor:ktor-server-request-validation:$ktorVersion"
+                const val CORS = "io.ktor:ktor-server-cors:$ktorVersion"
             }
 
             const val Json = "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
