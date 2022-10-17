@@ -41,6 +41,10 @@ object Deps {
 
             object Adapters {
                 const val GoogleAuthIntegration = ":backend:adapters:google-auth-integration"
+                const val TimeIntegration = ":backend:adapters:time-integration"
+                const val RepositoriesIntegration = ":backend:adapters:repositories-integration"
+                const val TokensIntegration = ":backend:adapters:tokens-integration"
+                const val CodesIntegration = ":backend:adapters:codes-integration"
             }
         }
     }
