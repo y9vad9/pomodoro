@@ -75,4 +75,6 @@ fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
         GetLastEventsUseCase(timersRepository),
         GetEventUpdatesUseCase(timersRepository)
     )
+
+    ok()
 }
