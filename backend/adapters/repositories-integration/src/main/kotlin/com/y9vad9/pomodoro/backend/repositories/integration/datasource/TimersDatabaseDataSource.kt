@@ -19,6 +19,14 @@ class TimersDatabaseDataSource(
         }
     }
 
+    suspend fun getEventsUntil(eventId: Long): List<Timer.Event> {
+        return newSuspendedTransaction(db = database) {
+            TimersEventsTable.select { TimersEventsTable.EVENT_ID greater eventId }
+                .orderBy(TimersEventsTable.EVENT_ID, SortOrder.DESC)
+                .map { it.toEvent() }
+        }
+    }
+
     suspend fun getUserTimers(
         id: Int,
         boundary: IntProgression
@@ -192,6 +200,7 @@ class TimersDatabaseDataSource(
         val ownerId: Int
     ) {
         class Event(
+            val id: Long,
             val eventType: Type,
             val startedAt: Long,
             val finishesAt: Long?
@@ -223,6 +232,7 @@ class TimersDatabaseDataSource(
 
     private fun ResultRow.toEvent(): Timer.Event {
         return Timer.Event(
+            get(TimersEventsTable.EVENT_ID),
             get(TimersEventsTable.EVENT_TYPE),
             get(TimersEventsTable.STARTED_AT),
             get(TimersEventsTable.FINISHES_AT)

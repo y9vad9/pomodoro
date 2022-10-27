@@ -1,7 +1,9 @@
 package com.y9vad9.pomodoro.backend.application.routes.timer
 
+import com.y9vad9.pomodoro.backend.application.routes.timer.events.eventsRoot
 import com.y9vad9.pomodoro.backend.application.routes.timer.invites.timerInvites
 import com.y9vad9.pomodoro.backend.usecases.timers.*
+import com.y9vad9.pomodoro.backend.usecases.timers.events.GetLastEventsUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.CreateInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.GetInvitesUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.JoinByInviteUseCase
@@ -19,7 +21,9 @@ fun Route.timersRoot(
     createInviteUseCase: CreateInviteUseCase,
     getInvitesUseCase: GetInvitesUseCase,
     joinByInviteUseCase: JoinByInviteUseCase,
-    removeInviteUseCase: RemoveInviteUseCase
+    removeInviteUseCase: RemoveInviteUseCase,
+    getLastEventsUseCase: GetLastEventsUseCase,
+    getEventUpdatesUseCase: GetEventUpdatesUseCase
 ) {
     route("timers") {
         createTimer(createTimer)
@@ -36,5 +40,7 @@ fun Route.timersRoot(
             joinByInviteUseCase,
             removeInviteUseCase
         )
+
+        eventsRoot(getLastEventsUseCase, getEventUpdatesUseCase)
     }
 }

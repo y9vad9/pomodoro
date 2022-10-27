@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 
 internal object TimersEventsTable : Table() {
-    val EVENT_ID = integer("timer_event_id")
+    val EVENT_ID = long("timer_event_id")
         .autoIncrement()
 
     val TIMER_ID = integer("timer_id")
