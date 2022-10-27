@@ -2,9 +2,9 @@ package com.y9vad9.pomodoro.backend.repositories
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
 import com.y9vad9.pomodoro.backend.domain.TimerName
+import kotlinx.coroutines.flow.Flow
 
-interface
-TimersRepository {
+interface TimersRepository {
     suspend fun createTimer(
         name: TimerName,
         settings: Settings,
@@ -22,11 +22,31 @@ TimersRepository {
     suspend fun isMemberOf(userId: UsersRepository.UserId, timerId: TimerId): Boolean
 
     /**
+     * Receives all updates starts from [lastReceivedId].
+     * @return [Flow] with [TimerEvent]s.
+     */
+    fun getEventUpdates(
+        timerId: TimerId,
+        lastReceivedId: TimerEvent.TimerEventId
+    ): Flow<TimerEvent>
+
+    suspend fun getEventsUntil(
+        eventId: TimerEvent.TimerEventId,
+        boundaries: IntProgression
+    ): List<TimerEvent>
+
+    /**
      * Gets all timers where [userId] is participating.
      */
     suspend fun getTimers(userId: UsersRepository.UserId, boundaries: IntProgression): Sequence<Timer>
 
-    suspend fun createEvent(timerId: TimerId, timerEvent: TimerEvent)
+    suspend fun createEvent(
+        timerId: TimerId,
+        startedAt: DateTime,
+        finishesAt: DateTime?,
+        isPause: Boolean
+    )
+
     suspend fun getEvents(timerId: TimerId, boundaries: IntProgression): Sequence<TimerEvent>
 
     data class Settings(
@@ -71,16 +91,24 @@ TimersRepository {
     value class TimerId(val int: Int)
 
     sealed interface TimerEvent {
+        val id: TimerEventId
         val startedAt: DateTime
         val finishesAt: DateTime?
 
         class Started(
+            override val id: TimerEventId,
             override val startedAt: DateTime,
             override val finishesAt: DateTime
         ) : TimerEvent
+
         class Paused(
+            override val id: TimerEventId,
             override val startedAt: DateTime,
             override val finishesAt: DateTime?
         ) : TimerEvent
+
+
+        @JvmInline
+        value class TimerEventId(val long: Long)
     }
 }

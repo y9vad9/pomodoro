@@ -17,9 +17,9 @@ class StartTimerUseCase(
         ) {
             timers.createEvent(
                 timerId,
-                TimersRepository.TimerEvent.Started(
-                    time.provide(), time.provide() + settings.workTime
-                )
+                time.provide(),
+                time.provide() + settings.workTime,
+                false
             )
 
             Result.Success

@@ -7,8 +7,10 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.websocket.*
 import io.ktor.util.*
 import io.ktor.util.pipeline.*
+import io.ktor.websocket.*
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.authorized(
     block: (UsersRepository.UserId) -> Unit
@@ -23,6 +25,27 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.authorized(
         val userId = plugin.authorized(token)
         if (userId == null)
             call.respond(HttpStatusCode.Unauthorized)
+        else block(userId)
+    }
+}
+
+suspend inline fun DefaultWebSocketServerSession.authorized(
+    block: (UsersRepository.UserId) -> Unit
+) {
+    val token = call.request.authorization()
+    if (token == null) {
+        close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
+    } else {
+        val plugin: AuthorizationPlugin =
+            call.application.attributes[AuthorizationPlugin.key]
+
+        val userId = plugin.authorized(token)
+        if (userId == null)
+            close(
+                CloseReason(
+                    CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"
+                )
+            )
         else block(userId)
     }
 }

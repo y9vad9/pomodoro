@@ -3,11 +3,22 @@ package com.y9vad9.pomodoro.backend.repositories.integration
 import com.y9vad9.pomodoro.backend.domain.DateTime
 import com.y9vad9.pomodoro.backend.domain.TimerName
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
+import com.y9vad9.pomodoro.backend.repositories.TimersRepository.TimerEvent
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 import com.y9vad9.pomodoro.backend.repositories.integration.datasource.TimersDatabaseDataSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository as TimersRepositoryContract
 
-class TimersRepository(private val datasource: TimersDatabaseDataSource) : TimersRepositoryContract {
+class TimersRepository(
+    private val datasource: TimersDatabaseDataSource
+) : TimersRepositoryContract {
+    class Update(val timerId: TimersRepository.TimerId, val event: TimerEvent)
+
+    private val updates: MutableSharedFlow<Update> = MutableSharedFlow(60)
+
     override suspend fun createTimer(
         name: TimerName,
         settings: TimersRepository.Settings,
@@ -56,6 +67,22 @@ class TimersRepository(private val datasource: TimersDatabaseDataSource) : Timer
         return datasource.isMemberOf(timerId.int, userId.int)
     }
 
+    override fun getEventUpdates(
+        timerId: TimersRepository.TimerId,
+        lastReceivedId: TimerEvent.TimerEventId
+    ): Flow<TimerEvent> {
+        return updates.filter {
+            it.timerId == timerId && it.event.id.long < lastReceivedId.long
+        }.map { it.event }
+    }
+
+    override suspend fun getEventsUntil(
+        eventId: TimerEvent.TimerEventId,
+        boundaries: IntProgression
+    ): List<TimerEvent> {
+        return datasource.getEventsUntil(eventId.long).map { it.toExternalEvent() }
+    }
+
     override suspend fun getTimers(
         userId: UsersRepository.UserId,
         boundaries: IntProgression
@@ -63,21 +90,26 @@ class TimersRepository(private val datasource: TimersDatabaseDataSource) : Timer
         return datasource.getUserTimers(userId.int, boundaries).map { it.toExternalTimer() }
     }
 
-    override suspend fun createEvent(timerId: TimersRepository.TimerId, timerEvent: TimersRepository.TimerEvent) {
+    override suspend fun createEvent(
+        timerId: TimersRepository.TimerId,
+        startedAt: DateTime,
+        finishesAt: DateTime?,
+        isPause: Boolean
+    ) {
         datasource.addEvent(
             timerId.int,
-            if (timerEvent is TimersRepository.TimerEvent.Started)
+            if (!isPause)
                 TimersDatabaseDataSource.Timer.Event.Type.START
             else TimersDatabaseDataSource.Timer.Event.Type.PAUSE,
-            timerEvent.startedAt.long,
-            timerEvent.finishesAt?.long
+            startedAt.long,
+            finishesAt?.long
         )
     }
 
     override suspend fun getEvents(
         timerId: TimersRepository.TimerId,
         boundaries: IntProgression
-    ): Sequence<TimersRepository.TimerEvent> {
+    ): Sequence<TimerEvent> {
         return datasource.getEvents(timerId.int, boundaries).map { it.toExternalEvent() }
     }
 
@@ -90,15 +122,21 @@ class TimersRepository(private val datasource: TimersDatabaseDataSource) : Timer
         )
     }
 
-    private fun TimersDatabaseDataSource.Timer.Event.toExternalEvent(): TimersRepositoryContract.TimerEvent {
+    private fun TimersDatabaseDataSource.Timer.Event.toExternalEvent(): TimerEvent {
         return when (eventType) {
             TimersDatabaseDataSource.Timer.Event.Type.PAUSE ->
-                TimersRepositoryContract.TimerEvent.Paused(
-                    DateTime(startedAt), finishesAt?.let { DateTime(it) }
+                TimerEvent.Paused(
+                    TimerEvent.TimerEventId(id),
+                    DateTime(startedAt),
+                    finishesAt?.let { DateTime(it) }
                 )
 
             TimersDatabaseDataSource.Timer.Event.Type.START ->
-                TimersRepositoryContract.TimerEvent.Started(DateTime(startedAt), DateTime(finishesAt!!))
+                TimerEvent.Started(
+                    TimerEvent.TimerEventId(id),
+                    DateTime(startedAt),
+                    DateTime(finishesAt!!)
+                )
         }
     }
 

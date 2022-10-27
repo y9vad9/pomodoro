@@ -17,6 +17,7 @@ import com.y9vad9.pomodoro.backend.usecases.auth.GetUserIdByAccessTokenUseCase
 import com.y9vad9.pomodoro.backend.usecases.auth.RefreshTokenUseCase
 import com.y9vad9.pomodoro.backend.usecases.auth.RemoveAccessTokenUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.*
+import com.y9vad9.pomodoro.backend.usecases.timers.events.GetLastEventsUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.CreateInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.GetInvitesUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.JoinByInviteUseCase
@@ -70,6 +71,8 @@ fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
         CreateInviteUseCase(timerInvitesRepository, timersRepository, codesProvider),
         GetInvitesUseCase(timerInvitesRepository, timersRepository),
         JoinByInviteUseCase(timerInvitesRepository, timersRepository),
-        RemoveInviteUseCase(timerInvitesRepository, timersRepository)
+        RemoveInviteUseCase(timerInvitesRepository, timersRepository),
+        GetLastEventsUseCase(timersRepository),
+        GetEventUpdatesUseCase(timersRepository)
     )
 }

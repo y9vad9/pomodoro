@@ -17,9 +17,9 @@ class StopTimerUseCase(
         ) {
             timers.createEvent(
                 timerId,
-                TimersRepository.TimerEvent.Paused(
-                    time.provide(), null
-                )
+                time.provide(),
+                null,
+                true
             )
 
             Result.Success
