@@ -5,6 +5,7 @@ The platform for time-management by
 
 ## Near-future plans
 
-- [ ] Make backend (almost finished)
+- [x] Make backend
+- [ ] Make multiplatform SDK
 - [ ] Make desktop app
 - [ ] Make website
