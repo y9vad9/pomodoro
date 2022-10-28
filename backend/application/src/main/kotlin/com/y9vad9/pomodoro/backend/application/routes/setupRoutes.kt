@@ -35,7 +35,7 @@ fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
     val usersRepository = UsersRepository(UsersDatabaseDataSource(database))
 
     val timeProvider =
-        SystemCurrentTimeProvider(TimeZone.getTimeZone(ZoneId.of("Ukraine/Kiev")))
+        SystemCurrentTimeProvider(TimeZone.getTimeZone(ZoneId.of("Europe/Kiev")))
     val accessTokenProvider = SecureAccessTokenProvider
     val refreshTokenProvider = SecureRefreshTokenProvider
     val codesProvider = SecureCodeProvider
