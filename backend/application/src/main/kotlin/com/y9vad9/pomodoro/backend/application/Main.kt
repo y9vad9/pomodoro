@@ -15,8 +15,10 @@ import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
+import java.time.Duration
 
 fun main(): Unit = runBlocking {
     val port = System.getenv("SERVER_PORT")?.toIntOrNull() ?: 8080
@@ -39,6 +41,13 @@ fun main(): Unit = runBlocking {
     embeddedServer(CIO, port) {
         install(ContentNegotiation) {
             json()
+        }
+
+        install(WebSockets) {
+            pingPeriod = Duration.ofSeconds(15)
+            timeout = Duration.ofSeconds(15)
+            maxFrameSize = Long.MAX_VALUE
+            masking = false
         }
 
         install(AuthorizationPlugin) {}
