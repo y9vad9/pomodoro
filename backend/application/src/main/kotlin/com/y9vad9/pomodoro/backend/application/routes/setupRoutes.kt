@@ -76,6 +76,7 @@ fun Routing.setupRoutes(
         GetLastEventsUseCase(timersRepository),
         GetEventUpdatesUseCase(timersRepository)
     )
+    ok()
 }
 
 fun Routing.setupRoutesWithDatabase(
