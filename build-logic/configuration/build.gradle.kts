@@ -31,8 +31,8 @@ gradlePlugin {
         id = "k-android-app"
         implementationClass = "KotlinAndroidApplicationConfiguration"
     }
-    plugins.register("k-android-library") {
-        id = "k-android-library"
+    plugins.register("k-android-sdk") {
+        id = "k-android-sdk"
         implementationClass = "KotlinAndroidLibraryConfiguration"
     }
 }

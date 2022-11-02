@@ -11,7 +11,6 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -34,5 +33,6 @@ include(
     ":backend:adapters:google-auth-integration",
     ":backend:adapters:time-integration",
     ":backend:adapters:tokens-integration",
-    ":backend:adapters:codes-integration"
+    ":backend:adapters:codes-integration",
+    ":sdk"
 )

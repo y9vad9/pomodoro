@@ -21,7 +21,7 @@ class GetUserIdRequest(
 }
 
 fun Route.getUserId(getUserId: GetUserIdByAccessTokenUseCase) {
-    delete("google") {
+    delete("user-id") {
         val data: GetUserIdRequest = call.receive()
         val result = getUserId(AuthorizationsRepository.AccessToken(data.accessToken))
         when (result) {

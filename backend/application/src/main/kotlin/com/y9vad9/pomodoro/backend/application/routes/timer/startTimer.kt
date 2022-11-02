@@ -20,7 +20,7 @@ data class StartTimerRequest(
 }
 
 fun Route.startTimer(startTimer: StartTimerUseCase) {
-    patch<StartTimerRequest> { data ->
+    post<StartTimerRequest>("start") { data ->
         authorized { userId ->
             val result = startTimer(userId, TimersRepository.TimerId(data.timerId))
 

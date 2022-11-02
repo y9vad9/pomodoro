@@ -38,6 +38,7 @@ object Deps {
         object Backend {
             const val Domain = ":backend:domain"
             const val UseCases = ":backend:use-cases"
+            const val Application = ":backend:application"
 
             object Adapters {
                 const val GoogleAuthIntegration = ":backend:adapters:google-auth-integration"
@@ -118,6 +119,7 @@ object Deps {
                 const val Core = "io.ktor:ktor-client-core:$ktorVersion"
                 const val Cio = "io.ktor:ktor-client-cio:$ktorVersion"
                 const val ContentNegotiation = "io.ktor:ktor-client-content-negotiation:$ktorVersion"
+                const val Js = "io.ktor:ktor-client-js:$ktorVersion"
             }
 
             object Server {
@@ -130,6 +132,7 @@ object Deps {
                 const val RequestValidation = "io.ktor:ktor-server-request-validation:$ktorVersion"
                 const val CORS = "io.ktor:ktor-server-cors:$ktorVersion"
                 const val WebSockets = "io.ktor:ktor-server-websockets:$ktorVersion"
+                const val CallLogging = "io.ktor:ktor-server-call-logging-jvm:$ktorVersion"
             }
 
             const val Json = "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
@@ -196,7 +199,7 @@ object Deps {
                 const val Js = "k-js"
                 object Android {
                     const val App = "k-android-app"
-                    const val Library = "k-android-library"
+                    const val Library = "k-android-sdk"
                 }
             }
         }
@@ -213,7 +216,7 @@ object Deps {
         }
         object Android {
             const val Application = "com.android.application"
-            const val Library = "com.android.library"
+            const val Library = "com.android.sdk"
             const val Classpath = "com.android.tools.build:gradle:$androidGradlePluginVersion"
         }
         object Serialization {

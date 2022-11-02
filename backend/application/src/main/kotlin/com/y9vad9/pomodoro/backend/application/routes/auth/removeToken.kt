@@ -20,7 +20,7 @@ class RemoveTokenRequest(
 }
 
 fun Route.removeToken(removeToken: RemoveAccessTokenUseCase) {
-    delete("google") {
+    delete {
         val data: RemoveTokenRequest = call.receive()
         val result = removeToken(AuthorizationsRepository.AccessToken(data.accessToken))
         when (result) {

@@ -27,15 +27,16 @@ import org.jetbrains.exposed.sql.Database
 import java.time.ZoneId
 import java.util.*
 
-fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
-    val authRepository = AuthorizationsRepository(AuthorizationsDataSource(database))
-    val linkedSocialsRepository = LinkedSocialsRepository(database)
-    val timerInvitesRepository = TimerInvitesRepository(TimerInvitesDataSource(database))
-    val timersRepository = TimersRepository(TimersDatabaseDataSource(database))
-    val usersRepository = UsersRepository(UsersDatabaseDataSource(database))
-
+fun Routing.setupRoutes(
+    authRepository: AuthorizationsRepository,
+    linkedSocialsRepository: LinkedSocialsRepository,
+    timerInvitesRepository: TimerInvitesRepository,
+    timersRepository: TimersRepository,
+    usersRepository: UsersRepository,
+    googleClient: GoogleClient
+) {
     val timeProvider =
-        SystemCurrentTimeProvider(TimeZone.getTimeZone(ZoneId.of("Kiev/Ukraine")))
+        SystemCurrentTimeProvider(TimeZone.getTimeZone(ZoneId.of("Europe/Kiev")))
     val accessTokenProvider = SecureAccessTokenProvider
     val refreshTokenProvider = SecureRefreshTokenProvider
     val codesProvider = SecureCodeProvider
@@ -74,5 +75,25 @@ fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
         RemoveInviteUseCase(timerInvitesRepository, timersRepository),
         GetLastEventsUseCase(timersRepository),
         GetEventUpdatesUseCase(timersRepository)
+    )
+}
+
+fun Routing.setupRoutesWithDatabase(
+    database: Database,
+    googleClient: GoogleClient
+) {
+    val authRepository = AuthorizationsRepository(AuthorizationsDataSource(database))
+    val linkedSocialsRepository = LinkedSocialsRepository(database)
+    val timerInvitesRepository = TimerInvitesRepository(TimerInvitesDataSource(database))
+    val timersRepository = TimersRepository(TimersDatabaseDataSource(database))
+    val usersRepository = UsersRepository(UsersDatabaseDataSource(database))
+
+    setupRoutes(
+        authRepository,
+        linkedSocialsRepository,
+        timerInvitesRepository,
+        timersRepository,
+        usersRepository,
+        googleClient
     )
 }
