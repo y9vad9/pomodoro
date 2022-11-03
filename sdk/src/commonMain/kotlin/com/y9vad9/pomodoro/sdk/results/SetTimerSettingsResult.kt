@@ -3,7 +3,6 @@ package com.y9vad9.pomodoro.sdk.results
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
 public sealed interface SetTimerSettingsResult {
     @Serializable
     @SerialName("success")

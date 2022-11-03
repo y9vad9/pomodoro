@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 sealed interface GetLastEventsResult {
     @Serializable
     @SerialName("success")
-    class Success(val list: List<TimerEvent>) : GetLastEventsResult
+    @JvmInline
+    value class Success(val list: List<TimerEvent>) : GetLastEventsResult
 
     @Serializable
     @SerialName("no_access")

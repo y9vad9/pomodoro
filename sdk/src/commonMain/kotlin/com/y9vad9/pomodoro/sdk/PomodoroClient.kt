@@ -12,12 +12,10 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.plus
@@ -41,13 +39,8 @@ public class PomodoroClient(
             socketTimeoutMillis = 15000L
         }
 
-        install(Logging) {
-            level = LogLevel.ALL
-        }
-
         install(ContentNegotiation) {
             json(Json {
-                @OptIn(ExperimentalSerializationApi::class)
                 explicitNulls = false
                 serializersModule = ResultsSerializersModule + TypesSerializersModule
             })
@@ -58,7 +51,7 @@ public class PomodoroClient(
 
     public suspend fun authViaGoogle(code: Code): SignWithGoogleResult {
         return client.post("auth/google") {
-            parameter("code", code.string)
+            parameter("code", code)
         }.toResult()
     }
 
@@ -72,7 +65,7 @@ public class PomodoroClient(
      */
     public suspend fun getUserId(accessToken: AccessToken): GetUserIdResult {
         return client.post("auth/user-id") {
-            header(HttpHeaders.Authorization, accessToken.string)
+            header(HttpHeaders.Authorization, accessToken)
         }.toResult()
     }
 
@@ -81,7 +74,7 @@ public class PomodoroClient(
      */
     public suspend fun removeToken(accessToken: AccessToken): RemoveTokenResult {
         return client.delete("auth") {
-            header(HttpHeaders.Authorization, accessToken.string)
+            header(HttpHeaders.Authorization, accessToken)
         }.toResult()
     }
 
@@ -91,7 +84,7 @@ public class PomodoroClient(
      */
     public suspend fun renewToken(refreshToken: RefreshToken): RenewTokenResult {
         return client.post("auth/renew") {
-            parameter("refresh_token", refreshToken.string)
+            parameter("refresh_token", refreshToken)
         }.toResult()
     }
 
@@ -106,8 +99,8 @@ public class PomodoroClient(
         settings: TimerSettings
     ): CreateTimerResult {
         return client.post("timers") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            setBody(CreateTimerRequest(name = name, settings = settings))
+            header(HttpHeaders.Authorization, accessToken)
+            setBody(CreateTimerRequest(name, settings))
         }.toResult()
     }
 
@@ -120,8 +113,8 @@ public class PomodoroClient(
         timerId: TimerId
     ): GetTimerResult {
         return client.get("timers") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("id", timerId.int)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId)
         }.toResult()
     }
 
@@ -129,14 +122,10 @@ public class PomodoroClient(
      * Gets user's timers by [accessToken].
      */
     public suspend fun getTimers(
-        accessToken: AccessToken,
-        count: Count,
-        offset: Offset
+        accessToken: AccessToken
     ): GetTimersResult {
         return client.get("timers/all") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("count", count.int)
-            parameter("offset", offset.int)
+            header(HttpHeaders.Authorization, accessToken)
         }.toResult()
     }
 
@@ -149,8 +138,8 @@ public class PomodoroClient(
         timerId: TimerId
     ): RemoveTimerResult {
         return client.delete("timers") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("id", timerId.int)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId.int)
         }.toResult()
     }
 
@@ -164,9 +153,9 @@ public class PomodoroClient(
         patch: TimerSettings.Patch
     ): SetTimerSettingsResult {
         return client.patch("timers") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("id", timerId.int)
-            setBody(patch)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId)
+            parameter("settings", patch)
         }.toResult()
     }
 
@@ -179,8 +168,8 @@ public class PomodoroClient(
         timerId: TimerId
     ): StartTimerResult {
         return client.post("timers/start") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("id", timerId.int)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId)
         }.toResult()
     }
 
@@ -193,8 +182,8 @@ public class PomodoroClient(
         timerId: TimerId
     ): StopTimerResult {
         return client.post("timers/stop") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("id", timerId.int)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId)
         }.toResult()
     }
 
@@ -209,9 +198,9 @@ public class PomodoroClient(
         max: Count
     ): CreateInviteResult {
         return client.post("timers/invites") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("timer_id", timerId.int)
-            parameter("max_joiners", max.int)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId)
+            parameter("max_joiners", max)
         }.toResult()
     }
 
@@ -222,10 +211,10 @@ public class PomodoroClient(
     public suspend fun getInvites(
         accessToken: AccessToken,
         timerId: TimerId
-    ): GetInvitesResult {
+    ): StopTimerResult {
         return client.get("timers/invites/all") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("timer_id", timerId.int)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("timer_id", timerId)
         }.toResult()
     }
 
@@ -236,10 +225,10 @@ public class PomodoroClient(
     public suspend fun joinTimerByInviteCode(
         accessToken: AccessToken,
         code: Code
-    ): JoinByCodeResult {
+    ): StopTimerResult {
         return client.post("timers/invites/join") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("code", code.string)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("code", code)
         }.toResult()
     }
 
@@ -252,8 +241,8 @@ public class PomodoroClient(
         code: Code
     ): RemoveInviteResult {
         return client.delete("timers/invites") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("code", code.string)
+            header(HttpHeaders.Authorization, accessToken)
+            parameter("code", code)
         }.toResult()
     }
 
@@ -267,11 +256,11 @@ public class PomodoroClient(
         lastKnownId: TimerEventId? = null
     ): GetLastEventsResult {
         return client.get("timers/events/last") {
-            header(HttpHeaders.Authorization, accessToken.string)
+            header(HttpHeaders.Authorization, accessToken)
             parameter("start", boundaries.first)
             parameter("end", boundaries.last)
-            parameter("last_known_id", lastKnownId?.long)
-            parameter("timer_id", timerId.int)
+            parameter("last_known_id", lastKnownId)
+            parameter("timer_id", timerId)
         }.toResult()
     }
 
@@ -292,7 +281,6 @@ public class PomodoroClient(
         }
     }
 
-    @Suppress("unused")
     @Serializable
     private class CreateTimerRequest(
         val name: Name,

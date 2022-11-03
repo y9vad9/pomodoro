@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public class TimerSettings(
+public data class TimerSettings(
     @SerialName("work_time")
     public val workTime: Milliseconds = Milliseconds(1500000L),
     @SerialName("rest_time")

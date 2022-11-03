@@ -4,7 +4,6 @@ import com.y9vad9.pomodoro.sdk.types.value.Code
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
 public sealed interface CreateInviteResult {
     @Serializable
     @SerialName("success")
