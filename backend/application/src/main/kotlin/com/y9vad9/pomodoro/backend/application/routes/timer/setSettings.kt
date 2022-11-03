@@ -1,31 +1,39 @@
 package com.y9vad9.pomodoro.backend.application.routes.timer
 
 import com.y9vad9.pomodoro.backend.application.plugins.authorized
-import com.y9vad9.pomodoro.backend.application.results.SetTimerSettingsResult
-import com.y9vad9.pomodoro.backend.application.types.TimerSettings
-import com.y9vad9.pomodoro.backend.application.types.internal
+import com.y9vad9.pomodoro.backend.application.types.NewSettings
+import com.y9vad9.pomodoro.backend.application.types.toInternal
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.SetTimerSettingsUseCase
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.Serializable
+
+object SetSettingsRequest {
+    @Serializable
+    sealed interface Result {
+        object Success : Result
+        object NoAccess : Result
+    }
+}
 
 fun Route.setSettings(setSettings: SetTimerSettingsUseCase) {
-    patch<TimerSettings.Patch> { data ->
+    patch<NewSettings> { data ->
         authorized { userId ->
             val timerId = call.request.queryParameters.getOrFail("id").toInt()
             val result = setSettings(
                 userId, TimersRepository.TimerId(timerId),
-                data.internal()
+                data.toInternal()
             )
 
             val response = when (result) {
                 is SetTimerSettingsUseCase.Result.Success ->
-                    SetTimerSettingsResult.Success
+                    SetSettingsRequest.Result.Success
 
                 is SetTimerSettingsUseCase.Result.NoAccess ->
-                    SetTimerSettingsResult.NoAccess
+                    SetSettingsRequest.Result.NoAccess
             }
 
             call.respond(response)
