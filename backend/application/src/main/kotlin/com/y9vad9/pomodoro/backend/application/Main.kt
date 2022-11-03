@@ -68,7 +68,7 @@ fun startServer(
                 serializersModule = jsonModule
             })
         }
-
+        
         install(RequestValidation) {
             timerSettingsValidator()
         }
