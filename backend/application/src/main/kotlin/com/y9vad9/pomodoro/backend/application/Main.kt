@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -82,10 +83,8 @@ fun startServer(
             exception<RequestValidationException> { call, cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.reasons)
             }
-            exception<Throwable> { call, throwable ->
-                call.respond(
-                    HttpStatusCode.InternalServerError, throwable.stackTraceToString()
-                )
+            exception<MissingRequestParameterException> { call, cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message.toString())
             }
         }
 

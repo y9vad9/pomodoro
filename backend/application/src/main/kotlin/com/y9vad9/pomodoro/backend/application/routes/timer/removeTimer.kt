@@ -4,15 +4,12 @@ import com.y9vad9.pomodoro.backend.application.plugins.authorized
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.RemoveTimerUseCase
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class RemoveTimerRequest(
-    val timerId: Int
-) {
+object RemoveTimerRequest {
     @Serializable
     sealed interface Result {
         object Success : Result
@@ -23,9 +20,9 @@ data class RemoveTimerRequest(
 fun Route.removeTimer(removeTimer: RemoveTimerUseCase) {
     delete {
         authorized { userId ->
-            val data = call.receive<RemoveTimerRequest>()
+            val timerId = call.request.queryParameters.getOrFail("id").toInt()
             val result =
-                removeTimer(userId, TimersRepository.TimerId(data.timerId))
+                removeTimer(userId, TimersRepository.TimerId(timerId))
 
             val response = when (result) {
                 is RemoveTimerUseCase.Result.Success -> RemoveTimerRequest.Result.Success

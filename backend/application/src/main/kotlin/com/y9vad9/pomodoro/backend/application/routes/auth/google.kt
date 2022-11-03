@@ -3,15 +3,12 @@ package com.y9vad9.pomodoro.backend.application.routes.auth
 import com.y9vad9.pomodoro.backend.usecases.auth.AuthViaGoogleUseCase
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-class AuthViaGoogleRequest(
-    val code: String
-) {
+object AuthViaGoogleRequest {
     @Serializable
     sealed interface Result {
         @Serializable
@@ -22,8 +19,8 @@ class AuthViaGoogleRequest(
 
 fun Route.authViaGoogle(authViaGoogle: AuthViaGoogleUseCase) {
     post("google") {
-        val data: AuthViaGoogleRequest = call.receive()
-        val response = when (val result = authViaGoogle(data.code)) {
+        val code = call.request.queryParameters.getOrFail("code")
+        val response = when (val result = authViaGoogle(code)) {
             is AuthViaGoogleUseCase.Result.InvalidAuthorization -> {
                 call.respond(HttpStatusCode.Unauthorized)
                 return@post

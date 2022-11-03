@@ -6,12 +6,10 @@ import com.y9vad9.pomodoro.backend.usecases.timers.StopTimerUseCase
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class StopTimerRequest(
-    val timerId: Int
-) {
+object StopTimerRequest {
     @Serializable
     sealed interface Result {
         object Success : Result
@@ -20,16 +18,16 @@ data class StopTimerRequest(
 }
 
 fun Route.stopTimer(stopTimer: StopTimerUseCase) {
-    post<StopTimerRequest>("stop") { data ->
+    post("stop") {
+        val timerId = call.request.queryParameters.getOrFail("id").toInt()
         authorized { userId ->
-            val result = stopTimer(userId, TimersRepository.TimerId(data.timerId))
 
-            val response = when (result) {
+            val response = when (stopTimer(userId, TimersRepository.TimerId(timerId))) {
                 is StopTimerUseCase.Result.Success ->
-                    SetSettingsRequest.Result.Success
+                    StopTimerRequest.Result.Success
 
                 is StopTimerUseCase.Result.NoAccess ->
-                    SetSettingsRequest.Result.NoAccess
+                    StopTimerRequest.Result.NoAccess
             }
 
             call.respond(response)

@@ -8,13 +8,10 @@ import com.y9vad9.pomodoro.backend.usecases.timers.SetTimerSettingsUseCase
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class SetSettingsRequest(
-    val timerId: Int,
-    val settings: NewSettings,
-) {
+object SetSettingsRequest {
     @Serializable
     sealed interface Result {
         object Success : Result
@@ -23,11 +20,12 @@ data class SetSettingsRequest(
 }
 
 fun Route.setSettings(setSettings: SetTimerSettingsUseCase) {
-    patch<SetSettingsRequest> { data ->
+    patch<NewSettings> { data ->
         authorized { userId ->
+            val timerId = call.request.queryParameters.getOrFail("id").toInt()
             val result = setSettings(
-                userId, TimersRepository.TimerId(data.timerId),
-                data.settings.toInternal()
+                userId, TimersRepository.TimerId(timerId),
+                data.toInternal()
             )
 
             val response = when (result) {

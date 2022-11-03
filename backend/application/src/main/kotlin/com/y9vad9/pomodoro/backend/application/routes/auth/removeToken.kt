@@ -9,10 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-class RemoveTokenRequest(
-    val accessToken: String
-) {
+object RemoveTokenRequest {
     @Serializable
     sealed interface Result {
         @Serializable
@@ -22,9 +19,14 @@ class RemoveTokenRequest(
 
 fun Route.removeToken(removeToken: RemoveAccessTokenUseCase) {
     delete {
-        val data: RemoveTokenRequest = call.receive()
-        val result = removeToken(AuthorizationsRepository.AccessToken(data.accessToken))
-        when (result) {
+        val accessToken = call.request.header(HttpHeaders.Authorization)
+
+        if (accessToken == null) {
+            call.respond(HttpStatusCode.Unauthorized)
+            return@delete
+        }
+
+        when (removeToken(AuthorizationsRepository.AccessToken(accessToken))) {
             is RemoveAccessTokenUseCase.Result.AuthorizationNotFound -> {
                 call.respond(HttpStatusCode.Unauthorized)
                 return@delete

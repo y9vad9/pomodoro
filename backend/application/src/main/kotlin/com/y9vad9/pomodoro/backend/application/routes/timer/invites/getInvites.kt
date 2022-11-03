@@ -6,15 +6,12 @@ import com.y9vad9.pomodoro.backend.application.types.toExternal
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.GetInvitesUseCase
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class GetInvitesRequest(
-    val timerId: Int
-) {
+object GetInvitesRequest {
     @Serializable
     sealed interface Result {
         @JvmInline
@@ -25,11 +22,11 @@ data class GetInvitesRequest(
 
 fun Route.getInvites(getInvites: GetInvitesUseCase) {
     get("/all") {
+        val timerId: Int = call.request.queryParameters.getOrFail("timerId").toInt()
         authorized { userId ->
-            val data = call.receive<GetInvitesRequest>()
             val result = getInvites(
                 userId, TimersRepository.TimerId(
-                    data.timerId
+                    timerId
                 )
             )
 

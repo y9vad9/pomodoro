@@ -4,15 +4,12 @@ import com.y9vad9.pomodoro.backend.application.plugins.authorized
 import com.y9vad9.pomodoro.backend.repositories.TimerInvitesRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.JoinByInviteUseCase
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class JoinByInviteCodeRequest(
-    val code: String
-) {
+object JoinByInviteCodeRequest {
     @Serializable
     sealed interface Result {
         @JvmInline
@@ -23,10 +20,10 @@ data class JoinByInviteCodeRequest(
 
 fun Route.joinByInviteCode(joinByInviteCode: JoinByInviteUseCase) {
     post("/join") {
+        val code: String = call.request.queryParameters.getOrFail("code")
         authorized { userId ->
-            val data = call.receive<JoinByInviteCodeRequest>()
             val result = joinByInviteCode(
-                userId, TimerInvitesRepository.Code(data.code)
+                userId, TimerInvitesRepository.Code(code)
             )
 
             val response = when (result) {

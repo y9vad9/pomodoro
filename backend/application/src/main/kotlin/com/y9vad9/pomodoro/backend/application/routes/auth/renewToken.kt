@@ -4,15 +4,12 @@ import com.y9vad9.pomodoro.backend.repositories.AuthorizationsRepository
 import com.y9vad9.pomodoro.backend.usecases.auth.RefreshTokenUseCase
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-class RenewTokenRequest(
-    val refreshToken: String
-) {
+object RenewTokenRequest {
     @Serializable
     sealed interface Result {
         @Serializable
@@ -21,11 +18,12 @@ class RenewTokenRequest(
     }
 }
 
-fun Route.renewToken(refreshToken: RefreshTokenUseCase) {
+fun Route.renewToken(refreshTokenUseCase: RefreshTokenUseCase) {
     post("renew") {
-        val data: RenewTokenRequest = call.receive()
-        val response = when (val result = refreshToken(
-            AuthorizationsRepository.RefreshToken(data.refreshToken)
+        val refreshToken = call.request.queryParameters.getOrFail("refreshToken")
+
+        val response = when (val result = refreshTokenUseCase(
+            AuthorizationsRepository.RefreshToken(refreshToken)
         )) {
             is RefreshTokenUseCase.Result.InvalidAuthorization -> {
                 call.respond(HttpStatusCode.Unauthorized)

@@ -7,13 +7,10 @@ import com.y9vad9.pomodoro.backend.usecases.timers.invites.CreateInviteUseCase
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class CreateInviteRequest(
-    val timerId: Int,
-    val maxJoiners: Int
-) {
+object CreateInviteRequest {
     @Serializable
     sealed interface Result {
         @JvmInline
@@ -23,12 +20,15 @@ data class CreateInviteRequest(
 }
 
 fun Route.createInvite(createInvite: CreateInviteUseCase) {
-    post<CreateInviteRequest> { data ->
+    post { data ->
+        val timerId: Int = call.request.queryParameters.getOrFail("timerId").toInt()
+        val maxJoiners: Int = call.request.queryParameters.getOrFail("maxJoiners").toInt()
+
         authorized { userId ->
             val result = createInvite(
                 userId, TimersRepository.TimerId(
-                    data.timerId
-                ), TimerInvitesRepository.Limit(data.maxJoiners)
+                    timerId
+                ), TimerInvitesRepository.Limit(maxJoiners)
             )
 
             val response = when (result) {
