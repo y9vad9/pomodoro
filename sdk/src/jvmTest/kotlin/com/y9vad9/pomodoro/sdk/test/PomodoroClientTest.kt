@@ -9,7 +9,6 @@ import com.y9vad9.pomodoro.sdk.types.value.AccessToken
 import com.y9vad9.pomodoro.sdk.types.value.Code
 import com.y9vad9.pomodoro.sdk.types.value.Count
 import com.y9vad9.pomodoro.sdk.types.value.Name
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.jetbrains.exposed.sql.Database
@@ -29,9 +28,11 @@ class PomodoroClientTest {
     @BeforeAll
     fun setup() {
         runBlocking {
+            var isServerStarted = false
             startServer(
                 PORT,
-                true
+                false,
+                onSetupFinished = { isServerStarted = true }
             ) {
                 setupRoutesWithDatabase(
                     Database.connect(
@@ -41,10 +42,9 @@ class PomodoroClientTest {
                 )
             }
 
-            var isServerStarted = false
             while (!isServerStarted)
                 yield()
-            delay(100000L)
+
             val result = client.authViaGoogle(
                 Code("12345FDC")
             )

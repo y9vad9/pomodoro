@@ -8,6 +8,6 @@ public sealed interface StopTimerResult {
     @SerialName("success")
     public object Success : StopTimerResult
 
-    @SerialName("success")
+    @SerialName("no_access")
     public object NoAccess : StopTimerResult
 }

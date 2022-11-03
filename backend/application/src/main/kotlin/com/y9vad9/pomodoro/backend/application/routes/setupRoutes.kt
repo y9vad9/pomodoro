@@ -1,5 +1,6 @@
 package com.y9vad9.pomodoro.backend.application.routes
 
+import com.y9vad9.pomodoro.backend.application.plugins.AuthorizationPlugin
 import com.y9vad9.pomodoro.backend.application.routes.auth.authRoot
 import com.y9vad9.pomodoro.backend.application.routes.timer.timersRoot
 import com.y9vad9.pomodoro.backend.codes.integration.SecureCodeProvider
@@ -22,6 +23,7 @@ import com.y9vad9.pomodoro.backend.usecases.timers.invites.CreateInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.GetInvitesUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.JoinByInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.RemoveInviteUseCase
+import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.Database
 import java.time.ZoneId
@@ -41,6 +43,10 @@ fun Routing.setupRoutes(
     val refreshTokenProvider = SecureRefreshTokenProvider
     val codesProvider = SecureCodeProvider
 
+    application.install(AuthorizationPlugin) {
+        authorize = GetUserIdByAccessTokenUseCase(authRepository, timeProvider)
+    }
+
     authRoot(
         AuthViaGoogleUseCase(
             linkedSocialsRepository,
@@ -52,7 +58,6 @@ fun Routing.setupRoutes(
             googleClient
         ),
         RemoveAccessTokenUseCase(authRepository),
-        GetUserIdByAccessTokenUseCase(authRepository, timeProvider),
         RefreshTokenUseCase(
             accessTokenProvider, authRepository, timeProvider
         )

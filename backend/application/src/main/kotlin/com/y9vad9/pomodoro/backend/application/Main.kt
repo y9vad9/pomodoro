@@ -1,8 +1,8 @@
 package com.y9vad9.pomodoro.backend.application
 
-import com.y9vad9.pomodoro.backend.application.plugins.AuthorizationPlugin
 import com.y9vad9.pomodoro.backend.application.routes.setupRoutes
 import com.y9vad9.pomodoro.backend.application.routes.setupRoutesWithDatabase
+import com.y9vad9.pomodoro.backend.application.types.serializer.jsonModule
 import com.y9vad9.pomodoro.backend.application.validator.timerSettingsValidator
 import com.y9vad9.pomodoro.backend.google.auth.HttpGoogleClient
 import io.ktor.http.*
@@ -65,23 +65,27 @@ fun startServer(
         install(ContentNegotiation) {
             json(Json {
                 explicitNulls = false
+                serializersModule = jsonModule
             })
         }
-
-        install(AuthorizationPlugin) {}
 
         install(RequestValidation) {
             timerSettingsValidator()
         }
 
         install(CallLogging) {
-            level = Level.ERROR
+            level = Level.INFO
             filter { call -> call.request.path().startsWith("/") }
         }
 
         install(StatusPages) {
             exception<RequestValidationException> { call, cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.reasons)
+            }
+            exception<Throwable> { call, throwable ->
+                call.respond(
+                    HttpStatusCode.InternalServerError, throwable.stackTraceToString()
+                )
             }
         }
 

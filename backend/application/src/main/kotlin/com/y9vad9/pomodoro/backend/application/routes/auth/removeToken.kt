@@ -15,6 +15,7 @@ class RemoveTokenRequest(
 ) {
     @Serializable
     sealed interface Result {
+        @Serializable
         object Success : Result
     }
 }
