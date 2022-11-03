@@ -27,7 +27,7 @@ object TimerInvitesTable : Table() {
         it[LIMIT] = invite.limit.int
     }
 
-    fun setLimitCount(code: TimerInvitesRepository.Code, limit: TimerInvitesRepository.Limit) {
+    fun setLimitCount(code: TimerInvitesRepository.Code, limit: TimerInvitesRepository.Count) {
         update({ INVITE_CODE eq code.string }) {
             it[LIMIT] = limit.int
         }
@@ -36,14 +36,14 @@ object TimerInvitesTable : Table() {
     class Invite(
         val timerId: TimersRepository.TimerId,
         val inviteCode: TimerInvitesRepository.Code,
-        val limit: TimerInvitesRepository.Limit
+        val limit: TimerInvitesRepository.Count
     )
 
     private fun ResultRow.toInvite(): Invite {
         return Invite(
             TimersRepository.TimerId(get(TIMER_ID)),
             TimerInvitesRepository.Code(get(INVITE_CODE)),
-            TimerInvitesRepository.Limit(get(LIMIT))
+            TimerInvitesRepository.Count(get(LIMIT))
         )
     }
 }

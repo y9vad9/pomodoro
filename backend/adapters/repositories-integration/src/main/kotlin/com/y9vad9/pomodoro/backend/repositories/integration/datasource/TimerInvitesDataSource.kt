@@ -37,7 +37,7 @@ class TimerInvitesDataSource(
 
     suspend fun setInviteLimit(
         code: TimerInvitesRepository.Code,
-        limit: TimerInvitesRepository.Limit
+        limit: TimerInvitesRepository.Count
     ): Unit = newSuspendedTransaction(db = database) {
         TimerInvitesTable.setLimitCount(code, limit)
     }
@@ -45,7 +45,7 @@ class TimerInvitesDataSource(
     suspend fun createInvite(
         timerId: TimersRepository.TimerId,
         code: TimerInvitesRepository.Code,
-        limit: TimerInvitesRepository.Limit
+        limit: TimerInvitesRepository.Count
     ): Unit = newSuspendedTransaction(db = database) {
         TimerInvitesTable.insert(TimerInvitesTable.Invite(timerId, code, limit))
     }

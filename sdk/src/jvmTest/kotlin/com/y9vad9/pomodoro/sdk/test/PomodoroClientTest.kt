@@ -124,13 +124,13 @@ class PomodoroClientTest {
 
         val result = client.setTimerSettings(
             accessToken, creationResult.timerId, TimerSettings.Patch(
-                bigRestEnabled = false
+                isBigRestEnabled = false
             )
         )
         assert(result is SetTimerSettingsResult.Success)
         assert(
             !(client.getTimer(accessToken, creationResult.timerId)
-                as GetTimerResult.Success).timer.settings.bigRestEnabled
+                as GetTimerResult.Success).timer.settings.isBigRestEnabled
         )
     }
 

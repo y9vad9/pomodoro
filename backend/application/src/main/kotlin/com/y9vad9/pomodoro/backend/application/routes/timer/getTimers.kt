@@ -1,8 +1,8 @@
 package com.y9vad9.pomodoro.backend.application.routes.timer
 
 import com.y9vad9.pomodoro.backend.application.plugins.authorized
-import com.y9vad9.pomodoro.backend.application.types.Timer
-import com.y9vad9.pomodoro.backend.application.types.toExternal
+import com.y9vad9.pomodoro.backend.application.results.GetTimersResult
+import com.y9vad9.pomodoro.backend.application.types.serializable
 import com.y9vad9.pomodoro.backend.usecases.timers.GetTimersUseCase
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -14,24 +14,18 @@ import kotlinx.serialization.Serializable
 data class GetTimersRequest(
     val count: Int,
     val offset: Int
-) {
-    @Serializable
-    sealed interface Result {
-        @JvmInline
-        value class Success(val list: List<Timer>) : Result
-    }
-}
+)
 
 fun Route.getTimers(getTimers: GetTimersUseCase) {
     get("all") {
         authorized { userId ->
             val data = call.receive<GetTimersRequest>()
-            val result: GetTimersRequest.Result =
-                GetTimersRequest.Result.Success(
+            val result: GetTimersResult =
+                GetTimersResult.Success(
                     (getTimers(
                         userId,
                         data.offset..data.count + data.offset
-                    ) as GetTimersUseCase.Result.Success).list.map { it.toExternal() }
+                    ) as GetTimersUseCase.Result.Success).list.map { it.serializable() }
                 )
 
             call.respond(result)

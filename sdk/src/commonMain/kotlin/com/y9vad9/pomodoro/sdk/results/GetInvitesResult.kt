@@ -7,10 +7,12 @@ import kotlin.jvm.JvmInline
 
 @Serializable
 public sealed interface GetInvitesResult {
+    @Serializable
     @SerialName("success")
     @JvmInline
     public value class Success(public val list: List<Invite>) : GetInvitesResult
 
+    @Serializable
     @SerialName("no_access")
     public object NoAccess : GetInvitesResult
 }

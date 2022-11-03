@@ -28,14 +28,14 @@ class TimerInvitesRepository(
         return datasource.getInvite(code)?.toExternal()
     }
 
-    override suspend fun setInviteLimit(code: TimerInvitesRepository.Code, limit: TimerInvitesRepository.Limit) {
+    override suspend fun setInviteLimit(code: TimerInvitesRepository.Code, limit: TimerInvitesRepository.Count) {
         return datasource.setInviteLimit(code, limit)
     }
 
     override suspend fun createInvite(
         timerId: TimersRepository.TimerId,
         code: TimerInvitesRepository.Code,
-        limit: TimerInvitesRepository.Limit
+        limit: TimerInvitesRepository.Count
     ) {
         return datasource.createInvite(timerId, code, limit)
     }

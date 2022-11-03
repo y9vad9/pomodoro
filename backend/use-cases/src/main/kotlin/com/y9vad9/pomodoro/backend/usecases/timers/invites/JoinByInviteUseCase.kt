@@ -19,7 +19,7 @@ class JoinByInviteUseCase(
             invites.removeInvite(invite.code)
         else invites.setInviteLimit(
             code,
-            TimerInvitesRepository.Limit(invite.limit.int - 1)
+            TimerInvitesRepository.Count(invite.limit.int - 1)
         )
 
         return Result.Success(invite.timerId)

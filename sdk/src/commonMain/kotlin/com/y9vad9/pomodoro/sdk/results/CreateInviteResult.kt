@@ -5,12 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
-@Serializable
 public sealed interface CreateInviteResult {
+    @Serializable
     @SerialName("success")
     @JvmInline
     public value class Success(public val code: Code) : CreateInviteResult
 
+    @Serializable
     @SerialName("no_access")
     public object NoAccess : CreateInviteResult
 }

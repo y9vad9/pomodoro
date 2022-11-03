@@ -7,10 +7,12 @@ import kotlin.jvm.JvmInline
 
 @Serializable
 public sealed interface GetLastEventsResult {
+    @Serializable
     @SerialName("success")
     @JvmInline
     public value class Success(public val list: List<TimerEvent>) : GetLastEventsResult
 
+    @Serializable
     @SerialName("no_access")
     public object NoAccess : GetLastEventsResult
 }

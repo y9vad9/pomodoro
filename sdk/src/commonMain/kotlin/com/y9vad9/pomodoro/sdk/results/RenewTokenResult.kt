@@ -1,12 +1,16 @@
 package com.y9vad9.pomodoro.sdk.results
 
+import com.y9vad9.pomodoro.sdk.types.value.AccessToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
-@Serializable
 public sealed interface RenewTokenResult {
+    @Serializable
     @SerialName("success")
     @JvmInline
-    public value class Success(public val accessToken: String) : RenewTokenResult
+    public value class Success(
+        @SerialName("access_token")
+        public val accessToken: AccessToken
+    ) : RenewTokenResult
 }

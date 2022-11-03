@@ -1,7 +1,7 @@
 package com.y9vad9.pomodoro.backend.application.routes.timer.events
 
 import com.y9vad9.pomodoro.backend.application.plugins.authorized
-import com.y9vad9.pomodoro.backend.application.types.toExternal
+import com.y9vad9.pomodoro.backend.application.types.serializable
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.GetEventUpdatesUseCase
 import io.ktor.server.routing.*
@@ -25,7 +25,7 @@ fun Route.eventUpdates(
                 )
 
                 is GetEventUpdatesUseCase.Result.Success -> result.flow.collect {
-                    sendSerialized(it.toExternal())
+                    sendSerialized(it.serializable())
                 }
             }
         }

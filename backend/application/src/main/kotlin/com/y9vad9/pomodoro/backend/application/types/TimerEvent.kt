@@ -1,38 +1,44 @@
 package com.y9vad9.pomodoro.backend.application.types
 
+import com.y9vad9.pomodoro.backend.application.types.value.Milliseconds
+import com.y9vad9.pomodoro.backend.application.types.value.TimerEventId
+import com.y9vad9.pomodoro.backend.application.types.value.serializable
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
 sealed interface TimerEvent {
-    val id: Long
-    val startedAt: Long
-    val finishesAt: Long?
+    val id: TimerEventId
 
-    @SerialName("START")
+    @SerialName("started_at")
+    val startedAt: Milliseconds
+
+    @SerialName("finishes_at")
+    val finishesAt: Milliseconds?
+
+    @Serializable
+    @SerialName("start")
     class Started(
-        override val id: Long,
-        override val startedAt: Long,
-        override val finishesAt: Long
+        override val id: TimerEventId,
+        override val startedAt: Milliseconds,
+        override val finishesAt: Milliseconds
     ) : TimerEvent
 
-    @SerialName("STOP")
+    @Serializable
+    @SerialName("stop")
     class Paused(
-        override val id: Long,
-        override val startedAt: Long,
-        override val finishesAt: Long?
+        override val id: TimerEventId,
+        override val startedAt: Milliseconds,
+        override val finishesAt: Milliseconds?
     ) : TimerEvent
 }
 
-fun TimersRepository.TimerEvent.toExternal(): TimerEvent {
-    return when (this) {
-        is TimersRepository.TimerEvent.Started -> TimerEvent.Started(
-            id.long, startedAt.long, finishesAt.long
-        )
+fun TimersRepository.TimerEvent.serializable() = when (this) {
+    is TimersRepository.TimerEvent.Started -> TimerEvent.Started(
+        id.serializable(), startedAt.serializable(), finishesAt.serializable()
+    )
 
-        is TimersRepository.TimerEvent.Paused -> TimerEvent.Paused(
-            id.long, startedAt.long, finishesAt?.long
-        )
-    }
+    is TimersRepository.TimerEvent.Paused -> TimerEvent.Paused(
+        id.serializable(), startedAt.serializable(), finishesAt?.serializable()
+    )
 }

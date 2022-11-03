@@ -26,7 +26,7 @@ class GetInvitesUseCaseTest {
             invitesRepo.createInvite(
                 id,
                 MockedCodeProvider.provide(),
-                TimerInvitesRepository.Limit(5)
+                TimerInvitesRepository.Count(5)
             )
 
             val result = useCase.invoke(

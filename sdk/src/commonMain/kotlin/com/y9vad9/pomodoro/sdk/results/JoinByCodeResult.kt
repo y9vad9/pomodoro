@@ -5,12 +5,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
-@Serializable
 public sealed interface JoinByCodeResult {
+    @Serializable
     @SerialName("success")
     @JvmInline
-    public value class Success(public val timerId: TimerId) : JoinByCodeResult
+    public value class Success(
+        @SerialName("timer_id")
+        public val timerId: TimerId
+    ) : JoinByCodeResult
 
+    @Serializable
     @SerialName("not_found")
     public object NotFound : JoinByCodeResult
 }

@@ -1,8 +1,8 @@
 package com.y9vad9.pomodoro.backend.application.routes.timer.events
 
 import com.y9vad9.pomodoro.backend.application.plugins.authorized
-import com.y9vad9.pomodoro.backend.application.types.TimerEvent
-import com.y9vad9.pomodoro.backend.application.types.toExternal
+import com.y9vad9.pomodoro.backend.application.results.GetLastEventsResult
+import com.y9vad9.pomodoro.backend.application.types.serializable
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.events.GetLastEventsUseCase
 import io.ktor.server.application.*
@@ -17,14 +17,7 @@ data class GetLastEventsRequest(
     val start: Int,
     val end: Int,
     val lastKnownId: Long?
-) {
-    @Serializable
-    sealed interface Result {
-        @JvmInline
-        value class Success(val list: List<TimerEvent>) : Result
-        object NoAccess : Result
-    }
-}
+)
 
 fun Route.getLastEvents(getLastEvents: GetLastEventsUseCase) {
     get("last") {
@@ -39,11 +32,11 @@ fun Route.getLastEvents(getLastEvents: GetLastEventsUseCase) {
                 )
 
             val response = when (result) {
-                is GetLastEventsUseCase.Result.Success -> GetLastEventsRequest.Result.Success(
-                    result.list.map { it.toExternal() }
+                is GetLastEventsUseCase.Result.Success -> GetLastEventsResult.Success(
+                    result.list.map { it.serializable() }
                 )
 
-                is GetLastEventsUseCase.Result.NoAccess -> GetLastEventsRequest.Result.NoAccess
+                is GetLastEventsUseCase.Result.NoAccess -> GetLastEventsResult.NoAccess
             }
 
             call.respond(response)

@@ -47,13 +47,13 @@ class TimerInvitesRepositoryTest {
         invites.createInvite(
             timerId,
             Code("ABCD123"),
-            Limit(2)
+            Count(2)
         )
 
         invites.createInvite(
             timerId,
             Code("ABCDF12345"),
-            Limit(20)
+            Count(20)
         )
         this@TimerInvitesRepositoryTest.timerId = timerId
     }
@@ -65,7 +65,7 @@ class TimerInvitesRepositoryTest {
 
     @Test
     fun testSetLimit(): Unit = runBlocking {
-        val newLimit = Limit(5)
+        val newLimit = Count(5)
         invites.setInviteLimit(
             Code("ABCDF12345"),
             newLimit

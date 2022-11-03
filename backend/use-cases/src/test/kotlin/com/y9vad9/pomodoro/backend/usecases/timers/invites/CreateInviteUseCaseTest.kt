@@ -27,7 +27,7 @@ class CreateInviteUseCaseTest {
             val result = useCase.invoke(
                 UsersRepository.UserId(1),
                 id,
-                TimerInvitesRepository.Limit(2)
+                TimerInvitesRepository.Count(2)
             )
 
             assert(result is CreateInviteUseCase.Result.Success)
@@ -47,7 +47,7 @@ class CreateInviteUseCaseTest {
             val result = useCase.invoke(
                 UsersRepository.UserId(1),
                 id,
-                TimerInvitesRepository.Limit(1)
+                TimerInvitesRepository.Count(1)
             )
 
             assert(result is CreateInviteUseCase.Result.NoAccess)

@@ -15,7 +15,7 @@ class MockedTimerInvitesRepository : TimerInvitesRepository {
         return list.firstOrNull { it.code == code }
     }
 
-    override suspend fun setInviteLimit(code: TimerInvitesRepository.Code, limit: TimerInvitesRepository.Limit) {
+    override suspend fun setInviteLimit(code: TimerInvitesRepository.Code, limit: TimerInvitesRepository.Count) {
         val item = list.firstOrNull { it.code == code } ?: throw IllegalStateException("Invite not found")
         list.removeIf { it.code == code }
         list += TimerInvitesRepository.Invite(item.timerId, item.code, limit)
@@ -24,7 +24,7 @@ class MockedTimerInvitesRepository : TimerInvitesRepository {
     override suspend fun createInvite(
         timerId: TimersRepository.TimerId,
         code: TimerInvitesRepository.Code,
-        limit: TimerInvitesRepository.Limit
+        limit: TimerInvitesRepository.Count
     ) {
         list += TimerInvitesRepository.Invite(timerId, code, limit)
     }
