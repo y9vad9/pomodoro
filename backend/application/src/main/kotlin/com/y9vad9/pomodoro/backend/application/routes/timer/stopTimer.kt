@@ -20,7 +20,7 @@ data class StopTimerRequest(
 }
 
 fun Route.stopTimer(stopTimer: StopTimerUseCase) {
-    patch<StopTimerRequest> { data ->
+    post<StopTimerRequest>("stop") { data ->
         authorized { userId ->
             val result = stopTimer(userId, TimersRepository.TimerId(data.timerId))
 

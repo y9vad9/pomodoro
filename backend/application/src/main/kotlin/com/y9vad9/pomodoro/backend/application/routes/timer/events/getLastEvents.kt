@@ -15,8 +15,8 @@ import kotlinx.serialization.Serializable
 data class GetLastEventsRequest(
     val timerId: Int,
     val start: Int,
-    val offset: Int,
-    val lastKnownId: Long
+    val end: Int,
+    val lastKnownId: Long?
 ) {
     @Serializable
     sealed interface Result {
@@ -27,15 +27,15 @@ data class GetLastEventsRequest(
 }
 
 fun Route.getLastEvents(getLastEvents: GetLastEventsUseCase) {
-    get {
+    get("last") {
         authorized { userId ->
             val data = call.receive<GetLastEventsRequest>()
             val result =
                 getLastEvents(
                     userId,
-                    data.start..data.offset,
+                    data.start..data.end,
                     TimersRepository.TimerId(data.timerId),
-                    TimersRepository.TimerEvent.TimerEventId(data.lastKnownId)
+                    data.lastKnownId?.let { id -> TimersRepository.TimerEvent.TimerEventId(id) }
                 )
 
             val response = when (result) {

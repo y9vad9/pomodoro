@@ -4,6 +4,7 @@ import com.y9vad9.pomodoro.backend.application.plugins.authorized
 import com.y9vad9.pomodoro.backend.repositories.TimerInvitesRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.RemoveInviteUseCase
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
@@ -21,8 +22,9 @@ data class RemoveInviteRequest(
 }
 
 fun Route.removeInvite(removeInvite: RemoveInviteUseCase) {
-    post<RemoveInviteRequest> { data ->
+    delete {
         authorized { userId ->
+            val data = call.receive<RemoveInviteRequest>()
             val result = removeInvite(
                 userId, TimerInvitesRepository.Code(data.code)
             )

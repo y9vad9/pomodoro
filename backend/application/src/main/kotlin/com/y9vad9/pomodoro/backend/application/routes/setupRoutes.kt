@@ -1,5 +1,6 @@
 package com.y9vad9.pomodoro.backend.application.routes
 
+import com.y9vad9.pomodoro.backend.application.plugins.AuthorizationPlugin
 import com.y9vad9.pomodoro.backend.application.routes.auth.authRoot
 import com.y9vad9.pomodoro.backend.application.routes.timer.timersRoot
 import com.y9vad9.pomodoro.backend.codes.integration.SecureCodeProvider
@@ -22,23 +23,29 @@ import com.y9vad9.pomodoro.backend.usecases.timers.invites.CreateInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.GetInvitesUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.JoinByInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.RemoveInviteUseCase
+import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.Database
 import java.time.ZoneId
 import java.util.*
 
-fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
-    val authRepository = AuthorizationsRepository(AuthorizationsDataSource(database))
-    val linkedSocialsRepository = LinkedSocialsRepository(database)
-    val timerInvitesRepository = TimerInvitesRepository(TimerInvitesDataSource(database))
-    val timersRepository = TimersRepository(TimersDatabaseDataSource(database))
-    val usersRepository = UsersRepository(UsersDatabaseDataSource(database))
-
+fun Routing.setupRoutes(
+    authRepository: AuthorizationsRepository,
+    linkedSocialsRepository: LinkedSocialsRepository,
+    timerInvitesRepository: TimerInvitesRepository,
+    timersRepository: TimersRepository,
+    usersRepository: UsersRepository,
+    googleClient: GoogleClient
+) {
     val timeProvider =
         SystemCurrentTimeProvider(TimeZone.getTimeZone(ZoneId.of("Europe/Kiev")))
     val accessTokenProvider = SecureAccessTokenProvider
     val refreshTokenProvider = SecureRefreshTokenProvider
     val codesProvider = SecureCodeProvider
+
+    application.install(AuthorizationPlugin) {
+        authorize = GetUserIdByAccessTokenUseCase(authRepository, timeProvider)
+    }
 
     authRoot(
         AuthViaGoogleUseCase(
@@ -51,7 +58,6 @@ fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
             googleClient
         ),
         RemoveAccessTokenUseCase(authRepository),
-        GetUserIdByAccessTokenUseCase(authRepository, timeProvider),
         RefreshTokenUseCase(
             accessTokenProvider, authRepository, timeProvider
         )
@@ -75,6 +81,25 @@ fun Routing.setupRoutes(database: Database, googleClient: GoogleClient) {
         GetLastEventsUseCase(timersRepository),
         GetEventUpdatesUseCase(timersRepository)
     )
-
     ok()
+}
+
+fun Routing.setupRoutesWithDatabase(
+    database: Database,
+    googleClient: GoogleClient
+) {
+    val authRepository = AuthorizationsRepository(AuthorizationsDataSource(database))
+    val linkedSocialsRepository = LinkedSocialsRepository(database)
+    val timerInvitesRepository = TimerInvitesRepository(TimerInvitesDataSource(database))
+    val timersRepository = TimersRepository(TimersDatabaseDataSource(database))
+    val usersRepository = UsersRepository(UsersDatabaseDataSource(database))
+
+    setupRoutes(
+        authRepository,
+        linkedSocialsRepository,
+        timerInvitesRepository,
+        timersRepository,
+        usersRepository,
+        googleClient
+    )
 }

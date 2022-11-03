@@ -28,6 +28,7 @@ dependencies {
     implementation(Deps.Libs.Ktor.Server.StatusPages)
     implementation(Deps.Libs.Ktor.Server.CORS)
     implementation(Deps.Libs.Ktor.Server.WebSockets)
+    implementation(Deps.Libs.Ktor.Server.CallLogging)
 }
 
 deploy {

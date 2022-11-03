@@ -20,7 +20,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.authorized(
         call.respond(HttpStatusCode.Unauthorized)
     else {
         val plugin: AuthorizationPlugin =
-            call.application.attributes[AuthorizationPlugin.key]
+            call.application.plugin(AuthorizationPlugin)
 
         val userId = plugin.authorized(token)
         if (userId == null)

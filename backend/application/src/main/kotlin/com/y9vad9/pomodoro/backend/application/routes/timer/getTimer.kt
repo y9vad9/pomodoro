@@ -9,6 +9,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,8 +18,11 @@ data class GetTimerRequest(
 ) {
     @Serializable
     sealed interface Result {
+        @SerialName("success")
         @JvmInline
         value class Success(val timer: Timer) : Result
+
+        @SerialName("not_found")
         object NotFound : Result
     }
 }

@@ -15,6 +15,7 @@ class RenewTokenRequest(
 ) {
     @Serializable
     sealed interface Result {
+        @Serializable
         @JvmInline
         value class Success(val accessToken: String) : Result
     }

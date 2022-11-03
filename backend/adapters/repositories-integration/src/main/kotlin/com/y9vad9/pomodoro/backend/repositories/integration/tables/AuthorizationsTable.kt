@@ -15,6 +15,7 @@ object AuthorizationsTable : Table() {
         it[USER_ID] = authorization.userId.int
         it[ACCESS_TOKEN] = authorization.accessToken.string
         it[ACCESS_TOKEN_EXPIRES_AT] = authorization.expiresAt.long
+        it[REFRESH_TOKEN] = authorization.refreshToken.string
     }
 
     fun select(

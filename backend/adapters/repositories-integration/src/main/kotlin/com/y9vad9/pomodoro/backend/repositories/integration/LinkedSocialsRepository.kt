@@ -4,12 +4,20 @@ import com.y9vad9.pomodoro.backend.repositories.LinkedSocialsRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
 import com.y9vad9.pomodoro.backend.repositories.integration.tables.LinkedGoogleAccountsTable
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 import com.y9vad9.pomodoro.backend.repositories.LinkedSocialsRepository as Contract
 
 class LinkedSocialsRepository(
     private val database: Database
 ) : Contract {
+    init {
+        transaction(database) {
+            SchemaUtils.createMissingTablesAndColumns(LinkedGoogleAccountsTable)
+        }
+    }
+
     override suspend fun getSocials(userId: UsersRepository.UserId): List<LinkedSocialsRepository.Social> {
         return newSuspendedTransaction(db = database) {
             val output = mutableListOf<LinkedSocialsRepository.Social>()

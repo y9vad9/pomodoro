@@ -3,7 +3,7 @@ plugins {
     id("dependencies")
 }
 
-group = "library-deploy"
+group = "sdk-deploy"
 version = "SNAPSHOT"
 
 repositories {
@@ -12,8 +12,8 @@ repositories {
 }
 
 gradlePlugin {
-    plugins.register("library-deploy") {
-        id = "library-deploy"
+    plugins.register("sdk-deploy") {
+        id = "sdk-deploy"
         implementationClass = "DeployPlugin"
     }
 }
