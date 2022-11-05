@@ -5,9 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public sealed interface StartTimerResult {
+    @Serializable
     @SerialName("success")
     public object Success : StartTimerResult
 
-    @SerialName("success")
+    @Serializable
+    @SerialName("no_access")
     public object NoAccess : StartTimerResult
 }

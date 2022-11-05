@@ -13,7 +13,7 @@ class CreateInviteUseCase(
     suspend operator fun invoke(
         userId: UsersRepository.UserId,
         timerId: TimersRepository.TimerId,
-        limit: TimerInvitesRepository.Limit
+        limit: TimerInvitesRepository.Count
     ): Result {
         if (timers.getTimer(timerId)?.ownerId != userId)
             return Result.NoAccess

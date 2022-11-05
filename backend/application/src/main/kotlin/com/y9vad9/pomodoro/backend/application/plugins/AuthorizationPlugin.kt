@@ -23,9 +23,8 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.authorized(
             call.application.plugin(AuthorizationPlugin)
 
         val userId = plugin.authorized(token)
-        if (userId == null)
-            call.respond(HttpStatusCode.Unauthorized)
-        else block(userId)
+            ?: return call.respond(HttpStatusCode.Unauthorized)
+        block(userId)
     }
 }
 
@@ -36,8 +35,7 @@ suspend inline fun DefaultWebSocketServerSession.authorized(
     if (token == null) {
         close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
     } else {
-        val plugin: AuthorizationPlugin =
-            call.application.attributes[AuthorizationPlugin.key]
+        val plugin: AuthorizationPlugin = call.application.plugin(AuthorizationPlugin)
 
         val userId = plugin.authorized(token)
         if (userId == null)

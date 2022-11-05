@@ -25,7 +25,7 @@ class JoinByInviteUseCaseTest {
             )
 
             val code = MockedCodeProvider.provide()
-            invitesRepo.createInvite(id, code, TimerInvitesRepository.Limit(5))
+            invitesRepo.createInvite(id, code, TimerInvitesRepository.Count(5))
 
             val result = useCase.invoke(
                 UsersRepository.UserId(1),
@@ -65,7 +65,7 @@ class JoinByInviteUseCaseTest {
             )
 
             val code = MockedCodeProvider.provide()
-            invitesRepo.createInvite(id, code, TimerInvitesRepository.Limit(1))
+            invitesRepo.createInvite(id, code, TimerInvitesRepository.Count(1))
 
             val result = useCase.invoke(
                 UsersRepository.UserId(1),

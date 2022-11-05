@@ -25,7 +25,7 @@ class RemoveInviteUseCaseTest {
             )
 
             val code = MockedCodeProvider.provide()
-            invitesRepo.createInvite(id, code, TimerInvitesRepository.Limit(10))
+            invitesRepo.createInvite(id, code, TimerInvitesRepository.Count(10))
 
             val result = useCase.invoke(
                 UsersRepository.UserId(1),
@@ -48,7 +48,7 @@ class RemoveInviteUseCaseTest {
             )
 
             val code = MockedCodeProvider.provide()
-            invitesRepo.createInvite(id, code, TimerInvitesRepository.Limit(10))
+            invitesRepo.createInvite(id, code, TimerInvitesRepository.Count(10))
 
             val result = useCase.invoke(
                 UsersRepository.UserId(2),

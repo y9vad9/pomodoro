@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public sealed interface RemoveTokenResult {
+    @Serializable
     @SerialName("success")
     public object Success : RemoveTokenResult
 }

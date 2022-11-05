@@ -16,6 +16,7 @@ kotlin {
             dependencies {
                 implementation(Deps.Libs.Ktor.Client.Core)
                 implementation(Deps.Libs.Ktor.Client.ContentNegotiation)
+                implementation(Deps.Libs.Ktor.Client.CallLogging)
                 implementation(Deps.Libs.Kotlinx.Serialization)
                 implementation(Deps.Libs.Ktor.Json)
             }
@@ -49,6 +50,7 @@ kotlin {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         languageVersion = "1.8"
+        freeCompilerArgs = listOf("-opt-in=kotlinx.serialization.ExperimentalSerializationApi")
     }
 }
 
