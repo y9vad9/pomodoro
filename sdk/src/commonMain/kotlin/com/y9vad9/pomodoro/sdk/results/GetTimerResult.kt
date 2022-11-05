@@ -4,6 +4,7 @@ import com.y9vad9.pomodoro.sdk.types.Timer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Serializable
 public sealed interface GetTimerResult {
     @Serializable
     @SerialName("success")

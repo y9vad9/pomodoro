@@ -24,7 +24,6 @@ fun Route.getTimer(getTimer: GetTimerUseCase) {
 
                 is GetTimerUseCase.Result.NotFound -> GetTimerResult.NotFound
             }
-
             call.respond(response)
         }
     }

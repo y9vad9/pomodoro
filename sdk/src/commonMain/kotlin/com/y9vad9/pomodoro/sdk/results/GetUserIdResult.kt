@@ -4,6 +4,7 @@ import com.y9vad9.pomodoro.sdk.types.value.UserId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Serializable
 public sealed interface GetUserIdResult {
     @Serializable
     @SerialName("success")
