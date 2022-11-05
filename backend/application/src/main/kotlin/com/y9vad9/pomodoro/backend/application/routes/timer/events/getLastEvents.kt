@@ -6,29 +6,23 @@ import com.y9vad9.pomodoro.backend.application.types.serializable
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.usecases.timers.events.GetLastEventsUseCase
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class GetLastEventsRequest(
-    val timerId: Int,
-    val start: Int,
-    val end: Int,
-    val lastKnownId: Long?
-)
+import io.ktor.server.util.*
 
 fun Route.getLastEvents(getLastEvents: GetLastEventsUseCase) {
     get("last") {
         authorized { userId ->
-            val data = call.receive<GetLastEventsRequest>()
+            val timerId = call.request.queryParameters.getOrFail("timer_id").toInt()
+            val start = call.request.queryParameters.getOrFail("start").toInt()
+            val end = call.request.queryParameters.getOrFail("end").toInt()
+            val lastKnownId = call.request.queryParameters["last_known_id"]?.toLong()
             val result =
                 getLastEvents(
                     userId,
-                    data.start..data.end,
-                    TimersRepository.TimerId(data.timerId),
-                    data.lastKnownId?.let { id -> TimersRepository.TimerEvent.TimerEventId(id) }
+                    start..end,
+                    TimersRepository.TimerId(timerId),
+                    lastKnownId?.let { id -> TimersRepository.TimerEvent.TimerEventId(id) }
                 )
 
             val response = when (result) {

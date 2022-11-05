@@ -24,23 +24,18 @@ fun Route.timersRoot(
     removeInviteUseCase: RemoveInviteUseCase,
     getLastEventsUseCase: GetLastEventsUseCase,
     getEventUpdatesUseCase: GetEventUpdatesUseCase
-) {
-    route("timers") {
-        createTimer(createTimer)
-        getTimers(getTimers)
-        getTimer(getTimer)
-        removeTimer(removeTimer)
-        setSettings(setSettings)
-        startTimer(startTimer)
-        stopTimer(stopTimer)
+) = route("timers") {
+    createTimer(createTimer)
+    getTimers(getTimers)
+    getTimer(getTimer)
+    removeTimer(removeTimer)
+    setSettings(setSettings)
+    startTimer(startTimer)
+    stopTimer(stopTimer)
 
-        timerInvites(
-            createInviteUseCase,
-            getInvitesUseCase,
-            joinByInviteUseCase,
-            removeInviteUseCase
-        )
+    timerInvites(
+        createInviteUseCase, getInvitesUseCase, joinByInviteUseCase, removeInviteUseCase
+    )
 
-        eventsRoot(getLastEventsUseCase, getEventUpdatesUseCase)
-    }
+    eventsRoot(getLastEventsUseCase, getEventUpdatesUseCase)
 }

@@ -8,6 +8,7 @@ import com.y9vad9.pomodoro.backend.providers.RefreshTokenProvider
 import com.y9vad9.pomodoro.backend.repositories.AuthorizationsRepository
 import com.y9vad9.pomodoro.backend.repositories.LinkedSocialsRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
+import java.time.Duration
 
 class AuthViaGoogleUseCase(
     private val linkedSocials: LinkedSocialsRepository,
@@ -33,7 +34,7 @@ class AuthViaGoogleUseCase(
             val id = users.createUser(UserName(user.name), time.provide())
             val accessToken = tokensProvider.provide()
             authorizations.create(
-                id, accessToken, refreshTokens.provide(), time.provide()
+                id, accessToken, refreshTokens.provide(), time.provide() + Duration.ofDays(7).toMillis()
             )
             Result.Success(accessToken)
         } else {
@@ -42,7 +43,7 @@ class AuthViaGoogleUseCase(
                 linked,
                 tokensProvider.provide(),
                 refreshTokens.provide(),
-                time.provide()
+                time.provide() + Duration.ofDays(7).toMillis()
             )
             Result.Success(accessToken)
         }

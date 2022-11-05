@@ -120,6 +120,7 @@ object Deps {
                 const val Cio = "io.ktor:ktor-client-cio:$ktorVersion"
                 const val ContentNegotiation = "io.ktor:ktor-client-content-negotiation:$ktorVersion"
                 const val Js = "io.ktor:ktor-client-js:$ktorVersion"
+                const val CallLogging = "io.ktor:ktor-client-logging:$ktorVersion"
             }
 
             object Server {

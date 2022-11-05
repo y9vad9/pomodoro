@@ -12,12 +12,10 @@ import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.*
-import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -25,7 +23,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.plus
 import org.jetbrains.exposed.sql.Database
-import org.slf4j.event.Level
 import java.time.Duration
 
 fun main(): Unit = runBlocking {
@@ -76,20 +73,12 @@ fun startServer(
             timerSettingsValidator()
         }
 
-        install(CallLogging) {
-            level = Level.INFO
-            filter { call -> call.request.path().startsWith("/") }
-        }
-
         install(StatusPages) {
             exception<RequestValidationException> { call, cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.reasons)
             }
             exception<MissingRequestParameterException> { call, cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.message.toString())
-            }
-            exception<Throwable> { call, throwable ->
-                call.respond(HttpStatusCode.BadRequest, throwable.stackTraceToString())
             }
         }
 

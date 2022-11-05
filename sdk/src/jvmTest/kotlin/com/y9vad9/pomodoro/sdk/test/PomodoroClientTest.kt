@@ -5,55 +5,58 @@ import com.y9vad9.pomodoro.backend.application.startServer
 import com.y9vad9.pomodoro.sdk.PomodoroClient
 import com.y9vad9.pomodoro.sdk.results.*
 import com.y9vad9.pomodoro.sdk.types.TimerSettings
-import com.y9vad9.pomodoro.sdk.types.value.AccessToken
-import com.y9vad9.pomodoro.sdk.types.value.Code
-import com.y9vad9.pomodoro.sdk.types.value.Count
-import com.y9vad9.pomodoro.sdk.types.value.Name
+import com.y9vad9.pomodoro.sdk.types.value.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.platform.commons.annotation.Testable
 import kotlin.properties.Delegates
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testable
 class PomodoroClientTest {
-    private val PORT = 9090
     private val client = PomodoroClient("http://0.0.0.0:9090")
     var accessToken: AccessToken by Delegates.notNull()
 
-    @BeforeAll
-    fun setup() {
-        runBlocking {
-            var isServerStarted = false
-            startServer(
-                PORT,
-                false,
-                onSetupFinished = { isServerStarted = true }
-            ) {
-                setupRoutesWithDatabase(
-                    Database.connect(
-                        "jdbc:h2:mem:regular;DB_CLOSE_DELAY=-1;", "org.h2.Driver"
-                    ),
-                    FakeGoogleClient()
-                )
+    companion object {
+        private const val PORT = 9090
+
+        @JvmStatic
+        @BeforeAll
+        fun setup() {
+            runBlocking {
+                var isServerStarted = false
+                startServer(
+                    PORT,
+                    false,
+                    onSetupFinished = { isServerStarted = true }
+                ) {
+                    setupRoutesWithDatabase(
+                        Database.connect(
+                            "jdbc:h2:mem:regular;DB_CLOSE_DELAY=-1;", "org.h2.Driver"
+                        ),
+                        FakeGoogleClient()
+                    )
+                }
+
+                while (!isServerStarted)
+                    yield()
             }
-
-            while (!isServerStarted)
-                yield()
-
-            val result = client.authViaGoogle(
-                Code("12345FDC")
-            )
-            assert(
-                result is SignWithGoogleResult.Success
-            )
-            result as SignWithGoogleResult.Success
-            accessToken = result.accessToken
         }
+    }
+
+    @BeforeEach
+    fun generateToken(): Unit = runBlocking {
+        val result = client.authViaGoogle(
+            Code("12345FDC")
+        )
+        assert(
+            result is SignWithGoogleResult.Success
+        )
+        result as SignWithGoogleResult.Success
+        accessToken = result.accessToken
     }
 
     @Test
@@ -96,10 +99,8 @@ class PomodoroClientTest {
             TimerSettings()
         )
 
-        val result = client.getTimers(accessToken)
+        val result = client.getTimers(accessToken, Count(5), Offset(0))
         assert(result is GetTimersResult.Success)
-        result as GetTimersResult.Success
-        assert(result.list.isNotEmpty())
     }
 
     @Test
