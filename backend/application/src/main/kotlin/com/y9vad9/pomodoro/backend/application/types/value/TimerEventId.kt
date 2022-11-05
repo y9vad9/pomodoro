@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @JvmInline
-value class TimerId(val int: Int)
+value class TimerEventId(val long: Long)
 
-fun TimersRepository.TimerId.serializable() = TimerId(int)
+fun TimersRepository.TimerEvent.TimerEventId.serializable() = TimerEventId(long)

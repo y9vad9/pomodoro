@@ -17,8 +17,6 @@ kotlin {
                 implementation(Deps.Libs.Ktor.Client.Core)
                 implementation(Deps.Libs.Ktor.Client.ContentNegotiation)
                 implementation(Deps.Libs.Ktor.Client.CallLogging)
-                implementation(Deps.Libs.Ktor.Client.WebSockets)
-                implementation(Deps.Libs.Ktor.Client.WebSocketsJson)
                 implementation(Deps.Libs.Kotlinx.Serialization)
                 implementation(Deps.Libs.Ktor.Json)
             }

@@ -2,8 +2,6 @@ package com.y9vad9.pomodoro.backend.application.types
 
 import com.y9vad9.pomodoro.backend.application.types.value.Milliseconds
 import com.y9vad9.pomodoro.backend.application.types.value.Regularity
-import com.y9vad9.pomodoro.backend.application.types.value.internal
-import com.y9vad9.pomodoro.backend.application.types.value.serializable
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -29,24 +27,24 @@ data class TimerSettings(
 }
 
 fun TimersRepository.Settings.serializable() = TimerSettings(
-    workTime.serializable(), restTime.serializable(), bigRestTime.serializable(),
+    Milliseconds(workTime), Milliseconds(restTime), Milliseconds(bigRestTime),
     bigRestEnabled, Regularity(bigRestPer), isEveryoneCanPause
 )
 
 fun TimersRepository.NewSettings.serializable(): TimerSettings.Patch =
     TimerSettings.Patch(
-        workTime?.serializable(),
-        restTime?.serializable(),
-        bigRestTime?.serializable(),
+        workTime?.let { Milliseconds(it) },
+        restTime?.let { Milliseconds(it) },
+        bigRestTime?.let { Milliseconds(it) },
         bigRestEnabled,
         bigRestPer?.let { Regularity(it) },
         isEveryoneCanPause
     )
 
 fun TimerSettings.internal() = TimersRepository.Settings(
-    workTime.internal(),
-    restTime.internal(),
-    bigRestTime.internal(),
+    workTime.long,
+    restTime.long,
+    bigRestTime.long,
     isBigRestEnabled,
     bigRestPer.int,
     true,
@@ -54,9 +52,9 @@ fun TimerSettings.internal() = TimersRepository.Settings(
 )
 
 fun TimerSettings.Patch.internal() = TimersRepository.NewSettings(
-    workTime?.internal(),
-    restTime?.internal(),
-    bigRestTime?.internal(),
+    workTime?.long,
+    restTime?.long,
+    bigRestTime?.long,
     isBigRestEnabled,
     bigRestPer?.int,
     isEveryoneCanPause

@@ -18,9 +18,7 @@ public class TimerSettings(
     @SerialName("big_rest_per")
     public val bigRestPer: Regularity = Regularity(4),
     @SerialName("is_everyone_can_pause")
-    public val isEveryoneCanPause: Boolean = false,
-    @SerialName("is_start_confirmation_required")
-    public val isStartConfirmationRequired: Boolean = false
+    public val isEveryoneCanPause: Boolean = false
 ) {
     @Serializable
     public class Patch(
@@ -35,8 +33,6 @@ public class TimerSettings(
         @SerialName("big_rest_per")
         public val bigRestPer: Int? = null,
         @SerialName("is_everyone_can_pause")
-        public val isEveryoneCanPause: Boolean? = null,
-        @SerialName("is_start_confirmation_required")
-        public val isStartConfirmationRequired: Boolean = false
+        public val isEveryoneCanPause: Boolean? = null
     )
 }
