@@ -7,6 +7,7 @@ import com.y9vad9.pomodoro.backend.application.types.serializer.TypesSerializers
 import com.y9vad9.pomodoro.backend.application.validator.timerSettingsValidator
 import com.y9vad9.pomodoro.backend.google.auth.HttpGoogleClient
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -83,12 +84,15 @@ fun startServer(
         }
 
         install(CORS) {
+            allowMethod(HttpMethod.Post)
             allowMethod(HttpMethod.Options)
             allowMethod(HttpMethod.Put)
             allowMethod(HttpMethod.Patch)
             allowMethod(HttpMethod.Delete)
             allowHeader(HttpHeaders.ContentType)
             allowHeader(HttpHeaders.Authorization)
+            allowHeader(HttpHeaders.Upgrade)
+            allowHeader(HttpHeaders.Connection)
         }
 
         install(WebSockets) {
@@ -96,6 +100,7 @@ fun startServer(
             timeout = Duration.ofSeconds(15)
             maxFrameSize = Long.MAX_VALUE
             masking = true
+            contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
 
         environment.monitor.subscribe(ApplicationStarted) {

@@ -4,7 +4,7 @@ object Deps {
     const val compileSdkVersion = 31
     const val minSdkVersion = 21
     
-    private const val kotlinVersion = "1.7.20"
+    private const val kotlinVersion = "1.7.21"
     private const val coroutinesVersion = "1.6.4"
     private const val serializationVersion = "1.4.0"
     private const val nodejsExternalsVersion = "0.0.7"
@@ -121,6 +121,8 @@ object Deps {
                 const val ContentNegotiation = "io.ktor:ktor-client-content-negotiation:$ktorVersion"
                 const val Js = "io.ktor:ktor-client-js:$ktorVersion"
                 const val CallLogging = "io.ktor:ktor-client-logging:$ktorVersion"
+                const val WebSockets = "io.ktor:ktor-client-websockets:$ktorVersion"
+                const val WebSocketsJson = "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
             }
 
             object Server {

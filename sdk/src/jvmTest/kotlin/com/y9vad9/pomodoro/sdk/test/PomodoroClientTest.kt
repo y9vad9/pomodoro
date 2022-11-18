@@ -6,6 +6,7 @@ import com.y9vad9.pomodoro.sdk.PomodoroClient
 import com.y9vad9.pomodoro.sdk.results.*
 import com.y9vad9.pomodoro.sdk.types.TimerSettings
 import com.y9vad9.pomodoro.sdk.types.value.*
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.jetbrains.exposed.sql.Database
@@ -214,5 +215,31 @@ class PomodoroClientTest {
         assert(result is GetLastEventsResult.Success)
         result as GetLastEventsResult.Success
         assert(result.list.size == 3)
+    }
+
+    @Test
+    fun getEventUpdatesTest(): Unit = runBlocking {
+        val creationResult = client.createTimer(
+            accessToken,
+            Name("Test"),
+            TimerSettings()
+        ) as CreateTimerResult.Success
+
+        client.startTimer(accessToken, creationResult.timerId)
+        client.stopTimer(accessToken, creationResult.timerId)
+        client.startTimer(accessToken, creationResult.timerId)
+
+        val events = client.getLastEvents(
+            accessToken,
+            creationResult.timerId, 0..1
+        ) as GetLastEventsResult.Success
+
+        assert(
+            client.getEventUpdates(
+                accessToken,
+                creationResult.timerId,
+                events.list.first().id
+            ).count() == 3
+        )
     }
 }

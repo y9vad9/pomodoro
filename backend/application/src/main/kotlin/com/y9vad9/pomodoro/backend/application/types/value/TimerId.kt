@@ -8,3 +8,4 @@ import kotlinx.serialization.Serializable
 value class TimerId(val int: Int)
 
 fun TimersRepository.TimerId.serializable() = TimerId(int)
+fun TimerId.internal() = TimersRepository.TimerId(int)

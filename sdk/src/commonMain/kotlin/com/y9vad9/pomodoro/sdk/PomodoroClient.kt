@@ -5,7 +5,9 @@ import com.y9vad9.pomodoro.sdk.exceptions.BadRequestException
 import com.y9vad9.pomodoro.sdk.exceptions.ConnectionException
 import com.y9vad9.pomodoro.sdk.results.*
 import com.y9vad9.pomodoro.sdk.results.serializer.ResultsSerializersModule
+import com.y9vad9.pomodoro.sdk.types.TimerEvent
 import com.y9vad9.pomodoro.sdk.types.TimerSettings
+import com.y9vad9.pomodoro.sdk.types.TimerUpdate
 import com.y9vad9.pomodoro.sdk.types.serializer.TypesSerializersModule
 import com.y9vad9.pomodoro.sdk.types.value.*
 import io.ktor.client.*
@@ -13,10 +15,18 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.websocket.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.utils.io.core.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -41,8 +51,9 @@ public class PomodoroClient(
             socketTimeoutMillis = 15000L
         }
 
-        install(Logging) {
-            level = LogLevel.ALL
+        install(WebSockets) {
+            pingInterval = 25000L
+            contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
 
         install(ContentNegotiation) {
@@ -275,6 +286,60 @@ public class PomodoroClient(
         }.toResult()
     }
 
+    /**
+     * Receives updates
+     */
+    @Deprecated("old")
+    public suspend fun getEventUpdates(
+        accessToken: AccessToken,
+        timerId: TimerId,
+        lastKnownId: TimerEventId,
+        scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    ): Flow<TimerEvent> {
+        val sharedFlow = MutableSharedFlow<TimerEvent>(60)
+        scope.launch {
+            client.webSocket(
+                "timers/events/updates",
+                request = {
+                    header(HttpHeaders.Authorization, accessToken.string)
+                    parameter("timer_id", timerId.int)
+                    parameter("last_known_id", lastKnownId.long)
+                    method = HttpMethod.Get
+                },
+            ) {
+                while (isActive) {
+                    sharedFlow.emit(receiveDeserialized())
+                }
+            }
+        }
+        return sharedFlow.asSharedFlow()
+    }
+
+    public suspend fun getTimerUpdates(
+        accessToken: AccessToken,
+        timerId: TimerId,
+        lastKnownId: TimerEventId,
+        scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    ): Flow<TimerUpdate> {
+        val sharedFlow = MutableSharedFlow<TimerUpdate>(60)
+        scope.launch {
+            client.webSocket(
+                "timers/updates",
+                request = {
+                    header(HttpHeaders.Authorization, accessToken.string)
+                    parameter("timer_id", timerId.int)
+                    parameter("last_known_event_id", lastKnownId.long)
+                    method = HttpMethod.Get
+                },
+            ) {
+                while (isActive) {
+                    sharedFlow.emit(receiveDeserialized())
+                }
+            }
+        }
+        return sharedFlow.asSharedFlow()
+    }
+
 
     /**
      * Checks whether response is success or not.
@@ -287,10 +352,15 @@ public class PomodoroClient(
         return when {
             status.isSuccess() -> body()
             status == HttpStatusCode.Unauthorized -> throw AuthorizationException()
-            status == HttpStatusCode.BadRequest -> throw BadRequestException(bodyAsText())
+            status == HttpStatusCode.BadRequest -> throw BadRequestException(
+                bodyAsText().takeIf { it.isNotBlank() } ?: "No message"
+            )
+
             else -> throw ConnectionException(status.description)
         }
     }
+
+    public fun close(): Unit = client.close()
 
     @Suppress("unused")
     @Serializable

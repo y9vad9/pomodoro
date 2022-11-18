@@ -22,3 +22,10 @@ fun RequestValidationConfig.timerSettingsValidator() {
         }
     }
 }
+
+fun main() {
+    val array = mapOf("Пукін" to 10000000, "Гєна" to 1000, "біден" to 3000000)
+    println(array.map { (key, value) -> value to key }
+        .joinToString("\n") { (key, value) -> "$key: $value" }
+    )
+}
