@@ -4,9 +4,14 @@ import com.y9vad9.pomodoro.backend.application.routes.setupRoutesWithDatabase
 import com.y9vad9.pomodoro.backend.application.startServer
 import com.y9vad9.pomodoro.sdk.PomodoroClient
 import com.y9vad9.pomodoro.sdk.results.*
+import com.y9vad9.pomodoro.sdk.types.TimerSessionCommand
 import com.y9vad9.pomodoro.sdk.types.TimerSettings
+import com.y9vad9.pomodoro.sdk.types.TimerUpdate
 import com.y9vad9.pomodoro.sdk.types.value.*
-import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.jetbrains.exposed.sql.Database
@@ -137,34 +142,6 @@ class PomodoroClientTest {
     }
 
     @Test
-    fun startTimerTest(): Unit = runBlocking {
-        val creationResult = client.createTimer(
-            accessToken,
-            Name("Test"),
-            TimerSettings()
-        ) as CreateTimerResult.Success
-
-        val result = client.startTimer(
-            accessToken, creationResult.timerId
-        )
-        assert(result is StartTimerResult.Success)
-    }
-
-    @Test
-    fun stopTimerTest(): Unit = runBlocking {
-        val creationResult = client.createTimer(
-            accessToken,
-            Name("Test"),
-            TimerSettings()
-        ) as CreateTimerResult.Success
-
-        val result = client.stopTimer(
-            accessToken, creationResult.timerId
-        )
-        assert(result is StopTimerResult.Success)
-    }
-
-    @Test
     fun createInviteTest(): Unit = runBlocking {
         val creationResult = client.createTimer(
             accessToken,
@@ -198,48 +175,21 @@ class PomodoroClientTest {
     }
 
     @Test
-    fun getLastEventsTest(): Unit = runBlocking {
+    fun getTimerUpdates(): Unit = runBlocking {
         val creationResult = client.createTimer(
             accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
-        client.startTimer(accessToken, creationResult.timerId)
-        client.stopTimer(accessToken, creationResult.timerId)
-        client.startTimer(accessToken, creationResult.timerId)
-
-        val result = client.getLastEvents(
-            accessToken, creationResult.timerId, 0..99
-        )
-        assert(result is GetLastEventsResult.Success)
-        result as GetLastEventsResult.Success
-        assert(result.list.size == 3)
-    }
-
-    @Test
-    fun getEventUpdatesTest(): Unit = runBlocking {
-        val creationResult = client.createTimer(
+//        delay(1000000L)
+        client.getTimerUpdates(
             accessToken,
-            Name("Test"),
-            TimerSettings()
-        ) as CreateTimerResult.Success
-
-        client.startTimer(accessToken, creationResult.timerId)
-        client.stopTimer(accessToken, creationResult.timerId)
-        client.startTimer(accessToken, creationResult.timerId)
-
-        val events = client.getLastEvents(
-            accessToken,
-            creationResult.timerId, 0..1
-        ) as GetLastEventsResult.Success
-
-        assert(
-            client.getEventUpdates(
-                accessToken,
-                creationResult.timerId,
-                events.list.first().id
-            ).count() == 3
-        )
+            creationResult.timerId,
+            flow {
+                emit(TimerSessionCommand.StartTimer)
+            },
+            CoroutineScope(Dispatchers.IO)
+        ).first() is TimerUpdate.TimerStarted
     }
 }

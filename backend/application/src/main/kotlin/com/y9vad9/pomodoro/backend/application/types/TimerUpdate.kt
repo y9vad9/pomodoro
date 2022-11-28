@@ -2,35 +2,44 @@ package com.y9vad9.pomodoro.backend.application.types
 
 import com.y9vad9.pomodoro.backend.application.types.value.Milliseconds
 import com.y9vad9.pomodoro.backend.application.types.value.serializable
-import com.y9vad9.pomodoro.backend.repositories.TimerUpdatesRepository
+import com.y9vad9.pomodoro.backend.repositories.SessionsRepository
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 sealed interface TimerUpdate {
-    @SerialName("confirmation")
+    @SerialName("session_timer_confirmation")
     @Serializable
     object Confirmation : TimerUpdate
 
-    @SerialName("settings")
+    @SerialName("timer_settings_update")
     @Serializable
     class Settings(
-        @SerialName("new_settings") val newSettings: TimerSettings.Patch
+        @SerialName("new_settings") val patch: TimerSettings.Patch
     ) : TimerUpdate
 
-    @SerialName("started")
+    @SerialName("timer_started")
     @Serializable
     class TimerStarted(@SerialName("ends_at") val endsAt: Milliseconds) : TimerUpdate
 
-    @SerialName("stopped")
+    @SerialName("timer_stopped")
     @Serializable
     class TimerStopped(@SerialName("starts_at") val startsAt: Milliseconds?) : TimerUpdate
+
+    @SerialName("session_failed")
+    @Serializable
+    object SessionFailed : TimerUpdate
+
+    @SerialName("session_finished")
+    @Serializable
+    object SessionFinished : TimerUpdate
 }
 
-fun TimerUpdatesRepository.Update.serializable(): TimerUpdate {
+fun SessionsRepository.Update.serializable(): TimerUpdate {
     return when (this) {
-        is TimerUpdatesRepository.Update.Confirmation -> TimerUpdate.Confirmation
-        is TimerUpdatesRepository.Update.TimerStarted -> TimerUpdate.TimerStarted(endsAt.serializable())
-        is TimerUpdatesRepository.Update.TimerStopped -> TimerUpdate.TimerStopped(startsAt?.serializable())
-        is TimerUpdatesRepository.Update.Settings -> TimerUpdate.Settings(newSettings.serializable())
+        is SessionsRepository.Update.Confirmation -> TimerUpdate.Confirmation
+        is SessionsRepository.Update.TimerStarted -> TimerUpdate.TimerStarted(endsAt.serializable())
+        is SessionsRepository.Update.TimerStopped -> TimerUpdate.TimerStopped(startsAt?.serializable())
+        is SessionsRepository.Update.Settings -> TimerUpdate.Settings(newSettings.serializable())
+        SessionsRepository.Update.SessionFinished -> TimerUpdate.SessionFinished
     }
 }

@@ -5,7 +5,7 @@ import com.y9vad9.pomodoro.sdk.exceptions.BadRequestException
 import com.y9vad9.pomodoro.sdk.exceptions.ConnectionException
 import com.y9vad9.pomodoro.sdk.results.*
 import com.y9vad9.pomodoro.sdk.results.serializer.ResultsSerializersModule
-import com.y9vad9.pomodoro.sdk.types.TimerEvent
+import com.y9vad9.pomodoro.sdk.types.TimerSessionCommand
 import com.y9vad9.pomodoro.sdk.types.TimerSettings
 import com.y9vad9.pomodoro.sdk.types.TimerUpdate
 import com.y9vad9.pomodoro.sdk.types.serializer.TypesSerializersModule
@@ -23,10 +23,12 @@ import io.ktor.http.websocket.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.core.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -37,11 +39,18 @@ import kotlinx.serialization.modules.plus
  * @param client custom client.
  */
 public class PomodoroClient(
-    private val client: HttpClient
+    private val apiUrl: String = "pomodoro.y9vad9.com"
 ) {
-    public constructor(url: String) : this(HttpClient {
+    private val client = HttpClient {
+        val json = Json {
+            @OptIn(ExperimentalSerializationApi::class)
+            explicitNulls = false
+            serializersModule = ResultsSerializersModule +
+                TypesSerializersModule
+        }
+
         defaultRequest {
-            url(url)
+            url(apiUrl)
             contentType(ContentType.parse("application/json"))
         }
 
@@ -53,19 +62,15 @@ public class PomodoroClient(
 
         install(WebSockets) {
             pingInterval = 25000L
-            contentConverter = KotlinxWebsocketSerializationConverter(Json)
+            contentConverter = KotlinxWebsocketSerializationConverter(json)
         }
+
+        install(Logging)
 
         install(ContentNegotiation) {
-            json(Json {
-                @OptIn(ExperimentalSerializationApi::class)
-                explicitNulls = false
-                serializersModule = ResultsSerializersModule + TypesSerializersModule
-            })
+            json(json)
         }
-    })
-
-    public constructor() : this("https://pomodoro.y9vad9.com")
+    }
 
     public suspend fun authViaGoogle(code: Code): SignWithGoogleResult {
         return client.post("auth/google") {
@@ -196,20 +201,6 @@ public class PomodoroClient(
     }
 
     /**
-     * Stops timer with [timerId].
-     * @param timerId unique identifier of a timer.
-     */
-    public suspend fun stopTimer(
-        accessToken: AccessToken,
-        timerId: TimerId
-    ): StopTimerResult {
-        return client.post("timers/stop") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("id", timerId.int)
-        }.toResult()
-    }
-
-    /**
      * Creates invite for [timerId].
      * @param timerId unique identifier of a timer.
      * @param max max count of joiners.
@@ -268,73 +259,32 @@ public class PomodoroClient(
         }.toResult()
     }
 
-    /**
-     * Gets last events of [timerId].
-     */
-    public suspend fun getLastEvents(
-        accessToken: AccessToken,
-        timerId: TimerId,
-        boundaries: IntRange,
-        lastKnownId: TimerEventId? = null
-    ): GetLastEventsResult {
-        return client.get("timers/events/last") {
-            header(HttpHeaders.Authorization, accessToken.string)
-            parameter("start", boundaries.first)
-            parameter("end", boundaries.last)
-            parameter("last_known_id", lastKnownId?.long)
-            parameter("timer_id", timerId.int)
-        }.toResult()
-    }
-
-    /**
-     * Receives updates
-     */
-    @Deprecated("old")
-    public suspend fun getEventUpdates(
-        accessToken: AccessToken,
-        timerId: TimerId,
-        lastKnownId: TimerEventId,
-        scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-    ): Flow<TimerEvent> {
-        val sharedFlow = MutableSharedFlow<TimerEvent>(60)
-        scope.launch {
-            client.webSocket(
-                "timers/events/updates",
-                request = {
-                    header(HttpHeaders.Authorization, accessToken.string)
-                    parameter("timer_id", timerId.int)
-                    parameter("last_known_id", lastKnownId.long)
-                    method = HttpMethod.Get
-                },
-            ) {
-                while (isActive) {
-                    sharedFlow.emit(receiveDeserialized())
-                }
-            }
-        }
-        return sharedFlow.asSharedFlow()
-    }
-
     public suspend fun getTimerUpdates(
         accessToken: AccessToken,
         timerId: TimerId,
-        lastKnownId: TimerEventId,
-        scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+        commands: Flow<TimerSessionCommand>,
+        scope: CoroutineScope
     ): Flow<TimerUpdate> {
-        val sharedFlow = MutableSharedFlow<TimerUpdate>(60)
+        val sharedFlow = MutableSharedFlow<TimerUpdate>(3)
+        val ws = client.webSocketSession(
+            host = "0.0.0.0",
+            port = 9090,
+            path = "timers/track",
+            method = HttpMethod.Get
+        ) {
+            header(HttpHeaders.Authorization, accessToken.string)
+            parameter("timer_id", timerId.int)
+        }
+
         scope.launch {
-            client.webSocket(
-                "timers/updates",
-                request = {
-                    header(HttpHeaders.Authorization, accessToken.string)
-                    parameter("timer_id", timerId.int)
-                    parameter("last_known_event_id", lastKnownId.long)
-                    method = HttpMethod.Get
-                },
-            ) {
-                while (isActive) {
-                    sharedFlow.emit(receiveDeserialized())
-                }
+            while (isActive) {
+                sharedFlow.emit(ws.receiveDeserialized())
+            }
+        }
+
+        scope.launch {
+            commands.collectLatest {
+                ws.sendSerialized(it)
             }
         }
         return sharedFlow.asSharedFlow()

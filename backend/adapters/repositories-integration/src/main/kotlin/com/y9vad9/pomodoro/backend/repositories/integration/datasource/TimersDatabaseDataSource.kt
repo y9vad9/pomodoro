@@ -2,7 +2,6 @@ package com.y9vad9.pomodoro.backend.repositories.integration.datasource
 
 import com.y9vad9.pomodoro.backend.repositories.integration.internal.limit
 import com.y9vad9.pomodoro.backend.repositories.integration.tables.TimerParticipantsTable
-import com.y9vad9.pomodoro.backend.repositories.integration.tables.TimersEventsTable
 import com.y9vad9.pomodoro.backend.repositories.integration.tables.TimersTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -15,15 +14,7 @@ class TimersDatabaseDataSource(
 
     init {
         transaction(database) {
-            SchemaUtils.create(TimerParticipantsTable, TimersEventsTable, TimersTable)
-        }
-    }
-
-    suspend fun getEventsUntil(eventId: Long): List<Timer.Event> {
-        return newSuspendedTransaction(db = database) {
-            TimersEventsTable.select { TimersEventsTable.EVENT_ID greater eventId }
-                .orderBy(TimersEventsTable.EVENT_ID, SortOrder.DESC)
-                .map { it.toEvent() }
+            SchemaUtils.create(TimerParticipantsTable, TimersTable)
         }
     }
 
@@ -39,14 +30,6 @@ class TimersDatabaseDataSource(
             TimersTable.TIMER_ID inList userTimers
         }.limit(boundary).asSequence()
 
-        val isPaused by lazy {
-            timers.map {
-                TimersEventsTable.selectLastEvent(it[TimersTable.TIMER_ID])
-            }.map {
-                it.lastOrNull()?.get(TimersEventsTable.EVENT_TYPE) != Timer.Event.Type.START
-            }.toList()
-        }
-
         val participantsCount by lazy {
             timers.map {
                 TimerParticipantsTable
@@ -57,16 +40,12 @@ class TimersDatabaseDataSource(
 
         timers.mapIndexed { index, it ->
             it.toTimer(
-                isPaused[index],
                 participantsCount[index]
             )
         }.toList().asSequence()
     }
 
     suspend fun getTimerById(id: Int): Timer? = newSuspendedTransaction(db = database) {
-        // Gets last timer's event and says whether it paused or not.
-        val isPaused = TimersEventsTable.selectLastEvent(id)
-            .lastOrNull()?.get(TimersEventsTable.EVENT_TYPE) != Timer.Event.Type.START
 
         val participantsCount = TimerParticipantsTable.selectParticipantsOf(id)
             .count().toInt()
@@ -74,7 +53,6 @@ class TimersDatabaseDataSource(
         TimersTable.select {
             TimersTable.TIMER_ID eq id
         }.singleOrNull()?.toTimer(
-            isPaused,
             participantsCount
         )
     }
@@ -84,14 +62,9 @@ class TimersDatabaseDataSource(
     }
 
     suspend fun getSettings(timerId: Int) = newSuspendedTransaction(db = database) {
-        val isPaused = TimersEventsTable.selectLastEvent(timerId)
-            .lastOrNull()?.get(TimersEventsTable.EVENT_TYPE) != Timer.Event.Type.START
-
         TimersTable.select { TimersTable.TIMER_ID eq timerId }
             .singleOrNull()?.let {
-                it.toSettings(
-                    isPaused
-                )
+                it.toSettings()
             }
     }
 
@@ -157,7 +130,8 @@ class TimersDatabaseDataSource(
             it[BIG_REST_TIME_ENABLED] = settings.bigRestEnabled
             it[BIG_REST_PER] = settings.bigRestPer
             it[IS_EVERYONE_CAN_PAUSE] = settings.isEveryoneCanPause
-        }.resultedValues!!.single().toTimer(false, 1).id
+            it[IS_CONFIRMATION_REQUIRED] = settings.isConfirmationRequired
+        }.resultedValues!!.single().toTimer(1).id
 
         TimerParticipantsTable.insert {
             it[TIMER_ID] = id
@@ -167,31 +141,6 @@ class TimersDatabaseDataSource(
         return@newSuspendedTransaction id
     }
 
-    suspend fun addEvent(
-        timerId: Int,
-        eventType: Timer.Event.Type,
-        startedAt: Long,
-        finishesAt: Long?
-    ): Unit = newSuspendedTransaction(db = database) {
-        TimersEventsTable.insert {
-            it[TIMER_ID] = timerId
-            it[STARTED_AT] = startedAt
-            it[FINISHES_AT] = finishesAt
-            it[EVENT_TYPE] = eventType
-        }
-    }
-
-    suspend fun getEvents(timerId: Int, boundaries: IntProgression): Sequence<Timer.Event> {
-        return newSuspendedTransaction(db = database) {
-            TimersEventsTable.select {
-                TimersEventsTable.TIMER_ID eq timerId
-            }.limit(boundaries)
-                .orderBy(TimersEventsTable.STARTED_AT, SortOrder.DESC)
-                .map { it.toEvent() }
-                .asSequence()
-        }
-    }
-
     class Timer(
         val id: Int,
         val timerName: String,
@@ -199,17 +148,6 @@ class TimersDatabaseDataSource(
         val participantsCount: Int,
         val ownerId: Int
     ) {
-        class Event(
-            val id: Long,
-            val eventType: Type,
-            val startedAt: Long,
-            val finishesAt: Long?
-        ) {
-            enum class Type {
-                START, PAUSE
-            }
-        }
-
         class Settings(
             val workTime: Long,
             val restTime: Long,
@@ -217,7 +155,7 @@ class TimersDatabaseDataSource(
             val bigRestEnabled: Boolean,
             val bigRestPer: Int,
             val isEveryoneCanPause: Boolean,
-            val isPaused: Boolean
+            val isConfirmationRequired: Boolean
         ) {
             class Patchable(
                 val workTime: Long? = null,
@@ -225,21 +163,13 @@ class TimersDatabaseDataSource(
                 val bigRestTime: Long? = null,
                 val bigRestEnabled: Boolean? = null,
                 val bigRestPer: Int? = null,
-                val isEveryoneCanPause: Boolean? = null
+                val isEveryoneCanPause: Boolean? = null,
+                val isConfirmationRequired: Boolean? = null
             )
         }
     }
 
-    private fun ResultRow.toEvent(): Timer.Event {
-        return Timer.Event(
-            get(TimersEventsTable.EVENT_ID),
-            get(TimersEventsTable.EVENT_TYPE),
-            get(TimersEventsTable.STARTED_AT),
-            get(TimersEventsTable.FINISHES_AT)
-        )
-    }
-
-    private fun ResultRow.toSettings(isPaused: Boolean): Timer.Settings {
+    private fun ResultRow.toSettings(): Timer.Settings {
         return Timer.Settings(
             get(TimersTable.WORK_TIME),
             get(TimersTable.REST_TIME),
@@ -247,15 +177,15 @@ class TimersDatabaseDataSource(
             get(TimersTable.BIG_REST_TIME_ENABLED),
             get(TimersTable.BIG_REST_PER),
             get(TimersTable.IS_EVERYONE_CAN_PAUSE),
-            isPaused
+            get(TimersTable.IS_CONFIRMATION_REQUIRED)
         )
     }
 
-    private fun ResultRow.toTimer(isPaused: Boolean, participantsCount: Int): Timer {
+    private fun ResultRow.toTimer(participantsCount: Int): Timer {
         return Timer(
             get(TimersTable.TIMER_ID),
             get(TimersTable.TIMER_NAME),
-            toSettings(isPaused),
+            toSettings(),
             participantsCount, /*(TimerParticipantsTable, "participants_count", IntegerColumnType()) */
             get(TimersTable.OWNER_ID)
         )

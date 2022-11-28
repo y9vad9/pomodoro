@@ -26,9 +26,6 @@ internal val ResultsSerializersModule: SerializersModule = SerializersModule {
     polymorphic(GetInvitesResult::class) {
         subclass(GetInvitesResult.Success::class)
     }
-    polymorphic(GetLastEventsResult::class) {
-        subclass(GetLastEventsResult.Success::class)
-    }
     polymorphic(GetTimerResult::class) {
         subclass(GetTimerResult.Success::class)
         subclass(GetTimerResult.NotFound::class)
