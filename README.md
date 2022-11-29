@@ -6,6 +6,6 @@ The platform for time-management by
 ## Near-future plans
 
 - [x] Make backend
-- [ ] Make multiplatform SDK
+- [x] Make multiplatform SDK
 - [ ] Make desktop app
 - [ ] Make website
