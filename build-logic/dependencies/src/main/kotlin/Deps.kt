@@ -1,8 +1,8 @@
 @file:Suppress("FunctionName", "unused")
 
 object Deps {
-    const val compileSdkVersion = 31
-    const val minSdkVersion = 21
+    const val compileSdkVersion = 32
+    const val minSdkVersion = 24
     
     private const val kotlinVersion = "1.7.21"
     private const val coroutinesVersion = "1.6.4"
@@ -22,10 +22,10 @@ object Deps {
     private const val recyclerViewVersion = "1.3.0-alpha01"
     private const val swipeRefreshLayoutVersion = "1.2.0"
     private const val constraintLayoutVersion = "2.1.0"
-    private const val lifecycleVersion = "2.3.1"
+    private const val lifecycleVersion = "2.5.1"
     private const val glideVersion = "4.12.0"
-    private const val androidAppCompatVersion = "1.3.1"
-    private const val androidComposeVersion = "1.3.0-alpha02"
+    private const val androidAppCompatVersion = "1.7.0-alpha01"
+    private const val androidComposeVersion = "1.4.0-alpha02"
     private const val androidGradlePluginVersion = "4.2.2"
 
     private const val kvisionVersion = "5.1.1"
@@ -36,7 +36,10 @@ object Deps {
 
     object Modules {
         object Client {
-            const val Core = ":client:core"
+            const val Common = ":client:common"
+            object Features {
+                const val ViewModelMpp = ":client:features:mpp-viewmodel"
+            }
         }
 
         const val Sdk = ":sdk"
@@ -56,6 +59,10 @@ object Deps {
         }
     }
     object Libs {
+        object Google {
+            const val PlayServicesAuth = "com.google.android.gms:play-services-auth:20.4.0"
+        }
+
         object H2 {
             const val Database = "com.h2database:h2:2.1.214"
         }
@@ -173,14 +180,15 @@ object Deps {
                 "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
             const val Lifecycle =
                 "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
-            const val LifecycleKtx =
-                "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
+            const val LifecycleViewModelKtx =
+                "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
 
             object Compose {
                 const val UI = "androidx.compose.ui:ui:$androidComposeVersion"
                 const val UITooling = "androidx.compose.ui:ui-tooling:$androidComposeVersion"
                 const val Foundation = "androidx.compose.foundation:foundation:$androidComposeVersion"
                 const val Material = "androidx.compose.material:material:$androidComposeVersion"
+                const val Material3 = "androidx.compose.material3:material3:1.1.0-alpha02"
                 const val Icons = "androidx.compose.material:material-icons-core:$androidComposeVersion"
                 const val ExtendedIcons = "androidx.compose.material:material-icons-extended:$androidComposeVersion"
                 const val JUnitTests = "androidx.compose.ui:ui-test-junit4:$androidComposeVersion"
@@ -225,7 +233,7 @@ object Deps {
         }
         object Android {
             const val Application = "com.android.application"
-            const val Library = "com.android.sdk"
+            const val Library = "com.android.library"
             const val Classpath = "com.android.tools.build:gradle:$androidGradlePluginVersion"
         }
         object Serialization {

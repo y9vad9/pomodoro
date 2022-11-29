@@ -34,5 +34,8 @@ include(
     ":backend:adapters:time-integration",
     ":backend:adapters:tokens-integration",
     ":backend:adapters:codes-integration",
-    ":sdk"
+    ":sdk",
+    ":client:common",
+    ":client:features:mpp-viewmodel",
+    ":client:android"
 )

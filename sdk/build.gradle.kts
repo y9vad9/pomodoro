@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id(Deps.Plugins.Configuration.Kotlin.Mpp)
+    id(Deps.Plugins.Android.Library)
     id(Deps.Plugins.Serialization.Id)
 }
 
@@ -10,6 +11,7 @@ kotlin {
         browser()
     }
     jvm()
+    android()
 
     sourceSets {
         val commonMain by getting {
@@ -47,6 +49,18 @@ kotlin {
     }
 
     explicitApi()
+}
+
+android {
+    compileSdk = Deps.compileSdkVersion
+
+    sourceSets {
+        getByName("main") {
+            manifest {
+                srcFile("androidMain/AndroidManifest.xml")
+            }
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {
