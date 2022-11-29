@@ -2,11 +2,9 @@ package com.y9vad9.pomodoro.backend.repositories
 
 import com.y9vad9.pomodoro.backend.domain.DateTime
 import com.y9vad9.pomodoro.backend.domain.TimerName
-import kotlinx.coroutines.flow.Flow
 
 class MockedTimersRepository : TimersRepository {
     private data class Timer(
-        val events: MutableList<TimersRepository.TimerEvent>,
         var settings: TimersRepository.Settings,
         val ownerId: UsersRepository.UserId,
         val members: MutableList<UsersRepository.UserId>,
@@ -23,7 +21,6 @@ class MockedTimersRepository : TimersRepository {
     ): TimersRepository.TimerId {
         timers.add(
             Timer(
-                mutableListOf(),
                 TimersRepository.Settings.Default,
                 ownerId,
                 mutableListOf(ownerId),
@@ -55,8 +52,8 @@ class MockedTimersRepository : TimersRepository {
                 bigRestTime = settings.bigRestTime ?: it.bigRestTime,
                 bigRestEnabled = settings.bigRestEnabled ?: it.bigRestEnabled,
                 bigRestPer = settings.bigRestPer ?: it.bigRestPer,
-                isPaused = it.isPaused,
-                isEveryoneCanPause = settings.isEveryoneCanPause ?: it.isEveryoneCanPause
+                isEveryoneCanPause = settings.isEveryoneCanPause ?: it.isEveryoneCanPause,
+                isConfirmationRequired = settings.isConfirmationRequired ?: it.isConfirmationRequired
             )
         }
     }
@@ -76,57 +73,12 @@ class MockedTimersRepository : TimersRepository {
         return timers.getOrNull(timerId.int)?.members?.contains(userId) == true
     }
 
-    override fun getEventUpdates(
-        timerId: TimersRepository.TimerId,
-        lastReceivedId: TimersRepository.TimerEvent.TimerEventId
-    ): Flow<TimersRepository.TimerEvent> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getEventsUntil(
-        eventId: TimersRepository.TimerEvent.TimerEventId,
-        boundaries: IntProgression
-    ): List<TimersRepository.TimerEvent> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun getTimers(
         userId: UsersRepository.UserId,
         boundaries: IntProgression
     ): Sequence<TimersRepository.Timer> {
         return timers.asSequence().filter { it.members.contains(userId) }
             .mapIndexed { i, e -> e.toOriginal(TimersRepository.TimerId(i)) }
-    }
-
-    override suspend fun createEvent(
-        timerId: TimersRepository.TimerId,
-        startedAt: DateTime,
-        finishesAt: DateTime?,
-        isPause: Boolean
-    ) {
-        timers[timerId.int].events += if (isPause)
-            TimersRepository.TimerEvent.Paused(
-                TimersRepository.TimerEvent.TimerEventId(
-                    (timers[timerId.int].events.lastIndex + 1).toLong()
-                ), startedAt, finishesAt
-            )
-        else TimersRepository.TimerEvent.Started(
-            TimersRepository.TimerEvent.TimerEventId(
-                (timers[timerId.int].events.lastIndex + 1).toLong()
-            ), startedAt, finishesAt!!
-        )
-        timers[timerId.int] = timers[timerId.int].let {
-            it.copy(
-                settings = it.settings.copy(isPaused = isPause)
-            )
-        }
-    }
-
-    override suspend fun getEvents(
-        timerId: TimersRepository.TimerId,
-        boundaries: IntProgression
-    ): Sequence<TimersRepository.TimerEvent> {
-        return timers[timerId.int].events.asSequence()
     }
 
     private fun Timer.toOriginal(id: TimersRepository.TimerId): TimersRepository.Timer =

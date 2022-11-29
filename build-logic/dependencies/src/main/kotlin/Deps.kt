@@ -4,11 +4,11 @@ object Deps {
     const val compileSdkVersion = 31
     const val minSdkVersion = 21
     
-    private const val kotlinVersion = "1.7.20"
+    private const val kotlinVersion = "1.7.21"
     private const val coroutinesVersion = "1.6.4"
     private const val serializationVersion = "1.4.0"
     private const val nodejsExternalsVersion = "0.0.7"
-    private const val ktorVersion = "2.1.2"
+    private const val ktorVersion = "2.0.1"
     private const val ktorOpenapiVersion = "0.3-beta.3"
     private const val exposedVersion = "0.39.2"
     private const val datetimeVersion = "0.3.0"
@@ -35,6 +35,12 @@ object Deps {
     private const val scriptKtVer = "0.0.5"
 
     object Modules {
+        object Client {
+            const val Core = ":client:core"
+        }
+
+        const val Sdk = ":sdk"
+
         object Backend {
             const val Domain = ":backend:domain"
             const val UseCases = ":backend:use-cases"
@@ -121,6 +127,8 @@ object Deps {
                 const val ContentNegotiation = "io.ktor:ktor-client-content-negotiation:$ktorVersion"
                 const val Js = "io.ktor:ktor-client-js:$ktorVersion"
                 const val CallLogging = "io.ktor:ktor-client-logging:$ktorVersion"
+                const val WebSockets = "io.ktor:ktor-client-websockets:$ktorVersion"
+                const val WebSocketsJson = "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
             }
 
             object Server {

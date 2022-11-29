@@ -53,7 +53,6 @@ class TimersRepositoryTest {
         assert(timers.getTimer(id) == null)
         assert(timers.getMembers(id, 0..1).none())
         assert(timers.getTimerSettings(id) == null)
-        assert(timers.getEvents(id, 0..1).none())
     }
 
     @Test

@@ -2,10 +2,20 @@ package com.y9vad9.pomodoro.sdk.test
 
 import com.y9vad9.pomodoro.backend.application.routes.setupRoutesWithDatabase
 import com.y9vad9.pomodoro.backend.application.startServer
-import com.y9vad9.pomodoro.sdk.PomodoroClient
+import com.y9vad9.pomodoro.sdk.AuthorizationPomodoroClient
+import com.y9vad9.pomodoro.sdk.AuthorizedPomodoroClient
 import com.y9vad9.pomodoro.sdk.results.*
+import com.y9vad9.pomodoro.sdk.types.TimerSessionCommand
 import com.y9vad9.pomodoro.sdk.types.TimerSettings
-import com.y9vad9.pomodoro.sdk.types.value.*
+import com.y9vad9.pomodoro.sdk.types.TimerUpdate
+import com.y9vad9.pomodoro.sdk.types.value.Code
+import com.y9vad9.pomodoro.sdk.types.value.Count
+import com.y9vad9.pomodoro.sdk.types.value.Name
+import com.y9vad9.pomodoro.sdk.types.value.Offset
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.jetbrains.exposed.sql.Database
@@ -13,12 +23,11 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.annotation.Testable
-import kotlin.properties.Delegates
 
 @Testable
-class PomodoroClientTest {
-    private val client = PomodoroClient("http://0.0.0.0:9090")
-    var accessToken: AccessToken by Delegates.notNull()
+class AuthorizedPomodoroClientTest {
+    private lateinit var client: AuthorizedPomodoroClient
+    private val authorizationClient = AuthorizationPomodoroClient("http://0.0.0.0:9090")
 
     companion object {
         private const val PORT = 9090
@@ -49,14 +58,16 @@ class PomodoroClientTest {
 
     @BeforeEach
     fun generateToken(): Unit = runBlocking {
-        val result = client.authViaGoogle(
+        val result = authorizationClient.authViaGoogle(
             Code("12345FDC")
         )
         assert(
             result is SignWithGoogleResult.Success
         )
         result as SignWithGoogleResult.Success
-        accessToken = result.accessToken
+        client = AuthorizedPomodoroClient(
+            "http://0.0.0.0:9090", result.accessToken
+        )
     }
 
     @Test
@@ -68,7 +79,6 @@ class PomodoroClientTest {
     fun createTimerTest(): Unit = runBlocking {
         assert(
             client.createTimer(
-                accessToken,
                 Name("Test"),
                 TimerSettings()
             ) is CreateTimerResult.Success
@@ -78,14 +88,13 @@ class PomodoroClientTest {
     @Test
     fun getTimerTest(): Unit = runBlocking {
         val creationResult = client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
         assert(
             client.getTimer(
-                accessToken,
+
                 creationResult.timerId
             ) is GetTimerResult.Success
         )
@@ -94,85 +103,52 @@ class PomodoroClientTest {
     @Test
     fun getTimersTest(): Unit = runBlocking {
         client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         )
 
-        val result = client.getTimers(accessToken, Count(5), Offset(0))
+        val result = client.getTimers(Count(5), Offset(0))
         assert(result is GetTimersResult.Success)
     }
 
     @Test
     fun removeTimerTest(): Unit = runBlocking {
         val creationResult = client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
-        val result = client.removeTimer(accessToken, creationResult.timerId)
+        val result = client.removeTimer(creationResult.timerId)
         assert(result is RemoveTimerResult.Success)
     }
 
     @Test
     fun setTimerSettingsTest(): Unit = runBlocking {
         val creationResult = client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
         val result = client.setTimerSettings(
-            accessToken, creationResult.timerId, TimerSettings.Patch(
+            creationResult.timerId, TimerSettings.Patch(
                 isBigRestEnabled = false
             )
         )
         assert(result is SetTimerSettingsResult.Success)
         assert(
-            !(client.getTimer(accessToken, creationResult.timerId)
-                as GetTimerResult.Success).timer.settings.isBigRestEnabled
+            !(client.getTimer(creationResult.timerId) as GetTimerResult.Success).timer.settings.isBigRestEnabled
         )
-    }
-
-    @Test
-    fun startTimerTest(): Unit = runBlocking {
-        val creationResult = client.createTimer(
-            accessToken,
-            Name("Test"),
-            TimerSettings()
-        ) as CreateTimerResult.Success
-
-        val result = client.startTimer(
-            accessToken, creationResult.timerId
-        )
-        assert(result is StartTimerResult.Success)
-    }
-
-    @Test
-    fun stopTimerTest(): Unit = runBlocking {
-        val creationResult = client.createTimer(
-            accessToken,
-            Name("Test"),
-            TimerSettings()
-        ) as CreateTimerResult.Success
-
-        val result = client.stopTimer(
-            accessToken, creationResult.timerId
-        )
-        assert(result is StopTimerResult.Success)
     }
 
     @Test
     fun createInviteTest(): Unit = runBlocking {
         val creationResult = client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
         val result = client.createInvite(
-            accessToken, creationResult.timerId, Count(5)
+            creationResult.timerId, Count(5)
         )
         assert(result is CreateInviteResult.Success)
     }
@@ -180,39 +156,35 @@ class PomodoroClientTest {
     @Test
     fun removeInviteTest(): Unit = runBlocking {
         val creationResult = client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
         val createInviteResult = client.createInvite(
-            accessToken, creationResult.timerId, Count(5)
+            creationResult.timerId, Count(5)
         ) as CreateInviteResult.Success
 
         assert(
             client.removeInvite(
-                accessToken, createInviteResult.code
+                createInviteResult.code
             ) is RemoveInviteResult.Success
         )
     }
 
     @Test
-    fun getLastEventsTest(): Unit = runBlocking {
+    fun getTimerUpdates(): Unit = runBlocking {
         val creationResult = client.createTimer(
-            accessToken,
             Name("Test"),
             TimerSettings()
         ) as CreateTimerResult.Success
 
-        client.startTimer(accessToken, creationResult.timerId)
-        client.stopTimer(accessToken, creationResult.timerId)
-        client.startTimer(accessToken, creationResult.timerId)
+        client.getTimerUpdates(
 
-        val result = client.getLastEvents(
-            accessToken, creationResult.timerId, 0..99
-        )
-        assert(result is GetLastEventsResult.Success)
-        result as GetLastEventsResult.Success
-        assert(result.list.size == 3)
+            creationResult.timerId,
+            flow {
+                emit(TimerSessionCommand.StartTimer)
+            },
+            CoroutineScope(Dispatchers.IO)
+        ).first() is TimerUpdate.TimerStarted
     }
 }

@@ -4,9 +4,9 @@ import com.y9vad9.pomodoro.backend.application.results.serializer.ResultsSeriali
 import com.y9vad9.pomodoro.backend.application.routes.setupRoutes
 import com.y9vad9.pomodoro.backend.application.routes.setupRoutesWithDatabase
 import com.y9vad9.pomodoro.backend.application.types.serializer.TypesSerializersModule
-import com.y9vad9.pomodoro.backend.application.validator.timerSettingsValidator
 import com.y9vad9.pomodoro.backend.google.auth.HttpGoogleClient
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -14,7 +14,6 @@ import io.ktor.server.engine.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -62,40 +61,46 @@ fun startServer(
     routingBlock: Routing.() -> Unit
 ) {
     embeddedServer(CIO, port) {
-        install(ContentNegotiation) {
-            json(Json {
-                explicitNulls = false
-                serializersModule = ResultsSerializersModule + TypesSerializersModule
-            })
+        val json = Json {
+            explicitNulls = false
+            serializersModule = ResultsSerializersModule + TypesSerializersModule
         }
 
-        install(RequestValidation) {
-            timerSettingsValidator()
+
+        install(ContentNegotiation) {
+            json(json)
         }
+
+//        install(RequestValidation) {
+//            timerSettingsValidator()
+//        }
 
         install(StatusPages) {
-            exception<RequestValidationException> { call, cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.reasons)
-            }
+//            exception<RequestValidationException> { call, cause ->
+//                call.respond(HttpStatusCode.BadRequest, cause.reasons)
+//            }
             exception<MissingRequestParameterException> { call, cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.message.toString())
             }
         }
 
         install(CORS) {
+            allowMethod(HttpMethod.Post)
             allowMethod(HttpMethod.Options)
             allowMethod(HttpMethod.Put)
             allowMethod(HttpMethod.Patch)
             allowMethod(HttpMethod.Delete)
             allowHeader(HttpHeaders.ContentType)
             allowHeader(HttpHeaders.Authorization)
+            allowHeader(HttpHeaders.Upgrade)
+            allowHeader(HttpHeaders.Connection)
         }
 
         install(WebSockets) {
             pingPeriod = Duration.ofSeconds(15)
             timeout = Duration.ofSeconds(15)
             maxFrameSize = Long.MAX_VALUE
-            masking = true
+            contentConverter = KotlinxWebsocketSerializationConverter(json)
         }
 
         environment.monitor.subscribe(ApplicationStarted) {

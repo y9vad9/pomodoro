@@ -18,13 +18,15 @@ import com.y9vad9.pomodoro.backend.usecases.auth.GetUserIdByAccessTokenUseCase
 import com.y9vad9.pomodoro.backend.usecases.auth.RefreshTokenUseCase
 import com.y9vad9.pomodoro.backend.usecases.auth.RemoveAccessTokenUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.*
-import com.y9vad9.pomodoro.backend.usecases.timers.events.GetLastEventsUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.CreateInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.GetInvitesUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.JoinByInviteUseCase
 import com.y9vad9.pomodoro.backend.usecases.timers.invites.RemoveInviteUseCase
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.jetbrains.exposed.sql.Database
 import java.time.ZoneId
 import java.util.*
@@ -35,6 +37,8 @@ fun Routing.setupRoutes(
     timerInvitesRepository: TimerInvitesRepository,
     timersRepository: TimersRepository,
     usersRepository: UsersRepository,
+    sessionsRepository: SessionsRepository,
+    schedulesRepository: SchedulesRepository,
     googleClient: GoogleClient
 ) {
     val timeProvider =
@@ -71,15 +75,16 @@ fun Routing.setupRoutes(
         GetTimersUseCase(timersRepository),
         GetTimerUseCase(timersRepository),
         RemoveTimerUseCase(timersRepository),
-        SetTimerSettingsUseCase(timersRepository),
-        StartTimerUseCase(timersRepository, timeProvider),
-        StopTimerUseCase(timersRepository, timeProvider),
+        SetTimerSettingsUseCase(timersRepository, sessionsRepository),
+        StartTimerUseCase(timersRepository, timeProvider, sessionsRepository),
+        StopTimerUseCase(timersRepository, sessionsRepository),
         CreateInviteUseCase(timerInvitesRepository, timersRepository, codesProvider),
         GetInvitesUseCase(timerInvitesRepository, timersRepository),
         JoinByInviteUseCase(timerInvitesRepository, timersRepository),
         RemoveInviteUseCase(timerInvitesRepository, timersRepository),
-        GetLastEventsUseCase(timersRepository),
-        GetEventUpdatesUseCase(timersRepository)
+        JoinSessionUseCase(timersRepository, sessionsRepository, schedulesRepository, timeProvider),
+        LeaveSessionUseCase(sessionsRepository, schedulesRepository),
+        ConfirmStartUseCase(timersRepository, sessionsRepository, timeProvider)
     )
     ok()
 }
@@ -93,6 +98,14 @@ fun Routing.setupRoutesWithDatabase(
     val timerInvitesRepository = TimerInvitesRepository(TimerInvitesDataSource(database))
     val timersRepository = TimersRepository(TimersDatabaseDataSource(database))
     val usersRepository = UsersRepository(UsersDatabaseDataSource(database))
+    val schedulesRepository = SchedulesRepository(
+        CoroutineScope(Dispatchers.Default + SupervisorJob())
+    )
+    val sessionsRepository =
+        SessionsRepository(
+            timersRepository,
+            CoroutineScope(Dispatchers.Default + SupervisorJob())
+        )
 
     setupRoutes(
         authRepository,
@@ -100,6 +113,8 @@ fun Routing.setupRoutesWithDatabase(
         timerInvitesRepository,
         timersRepository,
         usersRepository,
+        sessionsRepository,
+        schedulesRepository,
         googleClient
     )
 }

@@ -2,6 +2,7 @@ package com.y9vad9.pomodoro.backend.usecases.timers
 
 import com.y9vad9.pomodoro.backend.domain.TimerName
 import com.y9vad9.pomodoro.backend.providers.MockedCurrentTimeProvider
+import com.y9vad9.pomodoro.backend.repositories.MockedSessionsRepository
 import com.y9vad9.pomodoro.backend.repositories.MockedTimersRepository
 import com.y9vad9.pomodoro.backend.repositories.TimersRepository
 import com.y9vad9.pomodoro.backend.repositories.UsersRepository
@@ -11,7 +12,7 @@ import kotlin.test.BeforeTest
 
 class StartTimerUseCaseTest {
     private val repository = MockedTimersRepository()
-    private val useCase = StartTimerUseCase(repository, MockedCurrentTimeProvider)
+    private val useCase = StartTimerUseCase(repository, MockedCurrentTimeProvider, MockedSessionsRepository())
 
     @BeforeTest
     fun before() {
@@ -32,8 +33,6 @@ class StartTimerUseCaseTest {
             timerId
         )
         assert(result is StartTimerUseCase.Result.Success)
-        assert(!repository.getTimerSettings(timerId)!!.isPaused)
-        assert(repository.getEvents(timerId, 0..Int.MAX_VALUE).last() is TimersRepository.TimerEvent.Started)
     }
 
     @Test
