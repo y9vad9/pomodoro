@@ -1,5 +1,5 @@
 ![GitHub issues](https://img.shields.io/github/issues-raw/y9vad9/pomodoro) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/y9vad9/pomodoro) ![](https://tokei.rs/b1/github/y9vad9/pomodoro) [![Hits-of-Code](https://hitsofcode.com/github/y9vad9/pomodoro?branch=master)](https://hitsofcode.com/github/y9vad9/pomodoro/view?branch=master)
-
+> ❗️ Moved to [tomadoro organization](https://github.com/tomadoro).
 # 🍅 Pomodoro
 
 The platform for time-management by
